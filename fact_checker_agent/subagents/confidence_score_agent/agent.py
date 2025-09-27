@@ -17,7 +17,7 @@ def get_source_weight(
     credibility: float,
     bias: str,
     recency: float
-):
+) -> float:
     return credibility * recency if bias == "center" else credibility * recency * 0.75
 
 confidence_score_agent = Agent(
