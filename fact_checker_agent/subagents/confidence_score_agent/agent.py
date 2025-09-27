@@ -1,4 +1,5 @@
 from google.adk.agents import Agent
+from google.adk.sessions import InMemorySessionService
 
 CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
     These are the sources that we have:
