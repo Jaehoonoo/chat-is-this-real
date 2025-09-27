@@ -47,9 +47,7 @@ FINDER_PROMPT = r"""
 You are the first step in a two-step pipeline.
 
 Input JSON:
-{
-  "claims": ["...", "...", ...]  // up to 5 short factual claims
-}
+{claims}
 
 Your task:
 - Use ONLY the google_search tool to find up to 15 unique, reputable URLs
