@@ -1,24 +1,148 @@
 from google.adk.agents import Agent
-from pydantic import BaseModel
+from google.adk.sessions import InMemorySessionService
+from google.adk.runners import Runner
+from google.genai import types
+import uuid
+import asyncio
+from google.adk.tools import ToolContext
 
-class ConfidenceScoreOutput(BaseModel):
-    confidence_score: float = Field(
-        description = "A number ranging from 0 to 1 indicating the confidence, where 0 is lowest confidence, and 1 is highest confidence"
-    )
-    citations: str = Field(
-        description = ""
-    )
-    explanation: str = Field(
-        description = ""
-    )
+CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
+    You are a professional agent whose job is to be the judge in a
+    fact-checking system to combat misinformation. 
 
-CONFIDENCE_SCORE_AGENT_INSTRUCTION = ""
+    The user of this system has come up with a request to fact-check a piece of
+    information. Claims made by this piece of information were extracted by
+    another agent, and then those claims were used to guide yet another agent
+    an in-depth search for sources and evidence that are related to those
+    claims (i.e. those sources either refute/support those claims). Yet another
+    agent again did a credibility, bias, recency, and stance check on each of
+    those sources.
+
+    These are the source that we have:
+    {sources}
+
+    And this is the assessment of each source:
+    {evaluator_result}
+
+    Your task is to calculate the source weight for each source. You have
+    access to a tool called `get_source_weight` which you can use to accomplish
+    your task.
+
+    Just output what the get_source_weight tool gives you.
+"""
+
+def get_source_weights(tool_context: ToolContext) -> dict:
+    """
+    Accepts as an argument just the tools context. Returns a list of dicts
+    relating sources and their associated weights.
+    """
+    a = []
+    for i in tool_context.state.get("evaluator_result", "fib"):
+        a.append(
+            {
+                "domain": i["domain"],
+                "weights": i["recency_score"] * i["credibility_score"]
+            }
+        )
+    tool_context.state["source_weights"] = a
+    return a
+
+def get_evidence_score(tool_context: ToolContext) -> dict:
+    pass
 
 confidence_score_agent = Agent(
     model="gemini-2.0-flash-001",
     name="confidence_score_agent",
-    description="A helpful assistant for user questions.",
+    description="""You are an agent responsible for giving a confidence score
+    with regards to how confident you are.""",
     instruction=CONFIDENCE_SCORE_AGENT_INSTRUCTION,
-    output_key="confidence_score"
-    output_schema=ConfidenceScoreOutput
+    output_key="confidence_score",
+    tools=[get_source_weights]
 )
+
+# Executes required runner logic for unit test of conf score agnt.
+async def main():
+    session_service_stateful = InMemorySessionService()
+
+    initial_state = {
+        "sources": [
+            {
+                "domain": "nytimes.com",
+                "article_text": "A recent report from the New York Times confirms that climate change is accelerating, citing new NASA data.",
+                "published_date": "2025-09-20",
+                "original_claim": "Climate change is accelerating due to human activity."
+            },
+            {
+                "domain": "foxnews.com",
+                "article_text": "Fox News ran a segment suggesting that the link between climate change and human activity is exaggerated.",
+                "published_date": "2025-09-15",
+                "original_claim": "Climate change is accelerating due to human activity."
+            },
+            {
+                "domain": "bbc.com",
+                "article_text": "BBC published an article explaining the latest UN report on the rapid increase of global warming, largely attributed to fossil fuels.",
+                "published_date": "2025-09-10",
+                "original_claim": "Climate change is accelerating due to human activity."
+            }
+        ],
+        "evaluator_result": [
+            {
+                "domain": "nytimes.com",
+                "credibility_score": 0.9,
+                "bias_label": "center",
+                "recency_score": 1.0,
+                "stance": "supports",
+                "reasoning": "The New York Times is a highly credible source, and the article explicitly confirms the claim using NASA data. The article was also published very recently."
+            },
+            {
+                "domain": "foxnews.com",
+                "credibility_score": 0.6,
+                "bias_label": "right",
+                "recency_score": 1.0,
+                "stance": "opposes",
+                "reasoning": "Fox News has a right-leaning bias, and the article suggests that the link between climate change and human activity is exaggerated, thus opposing the claim. The article was published very recently."
+            },
+            {
+                "domain": "bbc.com",
+                "credibility_score": 0.9,
+                "bias_label": "center",
+                "recency_score": 0.5,
+                "stance": "supports",
+                "reasoning": "The BBC is a highly credible source, and the article explains the UN report attributing global warming to fossil fuels, thus supporting the claim. The article was published very recently."
+            }
+        ]
+    }
+
+    APP_NAME = "Conf Score Agnt"
+    USER_ID = "kalyanolivera"
+    SESSION_ID = str(uuid.uuid4())
+    stateful_session = await session_service_stateful.create_session(
+        app_name=APP_NAME,
+        user_id=USER_ID,
+        session_id=SESSION_ID,
+        state=initial_state
+    )
+
+    runner = Runner(
+        agent=confidence_score_agent,
+        app_name=APP_NAME,
+        session_service=session_service_stateful
+    )
+
+    nm = types.Content(
+        role="user", parts = [types.Part(text="do the tasks that you are made to do")]
+    )
+
+    # Where `e` stands for "event."
+    for e in runner.run(
+        user_id=USER_ID,
+        session_id=SESSION_ID,
+        new_message=nm
+    ):
+            if e.is_final_response() and e.content and e.content.parts:
+                print(
+                    f"Final response: {e.content.parts[0].text}"
+                )
+
+if __name__ == "__main__":
+    asyncio.run(main())
