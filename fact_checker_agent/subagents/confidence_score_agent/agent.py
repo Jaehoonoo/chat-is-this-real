@@ -47,8 +47,6 @@ def get_source_weights(tool_context: ToolContext) -> dict:
     tool_context.state["source_weights"] = a
     return a
 
-def get_evidence_score(tool_context: ToolContext) -> dict:
-    pass
 
 confidence_score_agent = Agent(
     model="gemini-2.0-flash-001",
