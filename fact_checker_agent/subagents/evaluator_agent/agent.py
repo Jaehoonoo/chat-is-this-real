@@ -4,7 +4,6 @@ recency, and produces a structured JSON output.
 """
 
 from google.adk.agents import Agent
-from google.adk.tools.agent_tool import AgentTool
 from datetime import datetime
 from typing import Dict
 
@@ -71,7 +70,6 @@ For each source object you are given, you must perform the following steps in or
     "bias_label": "-0.63",
     "recency_score": 1.01,
     "stance": "supports",
-    "reasoning": "The domain is generally reliable, the article aligns with the claim(s), and it was published recently."
   }
 ]
 
