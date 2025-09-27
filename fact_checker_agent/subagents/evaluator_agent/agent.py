@@ -10,18 +10,9 @@ from typing import Dict
 from .data import SOURCE_ANALYTICS_DB
 
 def get_source_analytics(domain: str) -> dict:
-    """
-    Looks up credibility and bias information for a given news domain.
-    
-    Args:
-        domain: The domain name of the news source (e.g., "nytimes.com").
-    
-    Returns:
-        A dictionary with 'credibility_score' and 'bias_label'.
-    """
+    db = SOURCE_ANALYTICS_DB
     clean_domain = domain.lower().strip().replace("www.", "")
-    # Return from DB or a default neutral value for unknown domains
-    return SOURCE_ANALYTICS_DB.get(
+    return db.get(
         clean_domain, {"credibility_score": 0.5, "bias_label": "center"}
     )
 
@@ -38,7 +29,6 @@ def recency_score(published_date: str) -> float:
     try:
         pub_date = datetime.fromisoformat(published_date)
         if pub_date.tzinfo is None:
-            # Set timezone to local machine's for accurate comparison
             pub_date = pub_date.replace(tzinfo=datetime.now().astimezone().tzinfo)
         now = datetime.now(pub_date.tzinfo)
         days_old = (now - pub_date).days
@@ -54,13 +44,18 @@ EVALUATOR_PROMPT = """
 You are a professional fact-checking assistant, working for a highly trusted and neutral organization.
 
 # Your task
-You will be given a list of sources in a JSON array. For each source, you must use your tools to gather information and produce a final JSON object.
+You will be given a list of sources with claims attached to it in a JSON array. For each source, you must use your tools to gather information and produce a final JSON object.
 
-# Instructions for each source:
-1.  **Call `get_source_analytics` tool**: Use the source's domain to get its `credibility_score` and `bias_label`.
-2.  **Call `recency_score` tool**: Use the source's `published_date` to get its `recency_score`.
-3.  **Analyze Content**: Read the `article_text` to determine the `stance` (one of: "supports", "opposes", "neutral") towards the `original_claim`.
-4.  **Provide Reasoning**: Write a concise, one-sentence `reasoning` for the determined stance.
+# Your Strict Workflow
+For each source object you are given, you must perform the following steps in order:
+
+1.  **MANDATORY TOOL CALLS**: You MUST call the `get_source_analytics` tool using the source's `domain` and the `recency_score` tool using the `published_date`.
+
+2.  **REPORT TOOL OUTPUT**: The values for `credibility_score`, `bias_label`, and `recency_score` in your final output MUST be the EXACT, UNCHANGED values returned by the tools. **DO NOT invent, estimate, or modify these numbers for any reason.**
+
+3.  **ANALYZE STANCE**: After getting the tool results, analyze the `article_text` to determine the `stance` (one of: "supports", "opposes", "neutral") toward the `original_claim`.
+
+4.  **GENERATE OUTPUT**: Create a single JSON object containing the verbatim tool outputs and your stance analysis.
 
 # Output format
 - Your final output MUST be a **strictly valid JSON array of objects**.
@@ -71,11 +66,11 @@ You will be given a list of sources in a JSON array. For each source, you must u
 [
   {
     "domain": "example.com",
-    "credibility_score": 0.8,
-    "bias_label": "center",
-    "recency_score": 1.0,
+    "credibility_score": 0.81,
+    "bias_label": "-0.63",
+    "recency_score": 1.01,
     "stance": "supports",
-    "reasoning": "The domain is generally reliable, the article aligns with the claim, and it was published recently."
+    "reasoning": "The domain is generally reliable, the article aligns with the claim(s), and it was published recently."
   }
 ]
 """
