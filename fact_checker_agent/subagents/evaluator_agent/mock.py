@@ -1,10 +1,10 @@
 # agent_b_pydantic.py
 from typing import List, Literal, Optional
 from pydantic import BaseModel, HttpUrl, Field
-from google.adk.agents import LlmAgent  # use LlmAgent for schema support
-from google.adk.tools import google_search
+from google.adk.agents import LlmAgent
+from google.adk.tools import google_search  # <-- real online search tool
 
-# ----- Pydantic output models -----
+# ----- Output schema (unchanged) -----
 class ArticleInfo(BaseModel):
     url: Optional[HttpUrl] = None
     title: str = ""
@@ -25,25 +25,22 @@ class VerifyOutput(BaseModel):
     sources: List[SourceItem]
     notes: str
 
-# ----- System prompt (keeps your rules/caps) -----
 B_SYSTEM_PROMPT = """
 You are Agent B (Verifier).
 
-You will receive: {claims}
+Input JSON: {"claims":[{"claim":"...","evidence_quote":"..."}]}
 Constraints:
 - Process at most 5 claims.
-- Use no more than 15 unique independent sources total (.gov/.edu, peer-reviewed, established newsrooms).
-- Deduplicate mirrors/syndication.
-- For each claim, try to provide ≥2 strong evidence URLs when possible.
-
-Return ONLY JSON matching the provided schema (article, claims, sources, notes).
+- Use no more than 15 unique independent sources total.
+- Prefer peer-reviewed journals, .gov/.edu, and established newsrooms; deduplicate mirrors.
+- Try to provide ≥2 strong evidence URLs per claim when possible.
+Return ONLY JSON matching the schema (article, claims, sources, notes). Ensure each evidence URL also appears in the top-level sources list.
 """
 
 agent_b = LlmAgent(
     name="agent_b_verifier",
-    model="gemini-2.5-flash",
+    model="gemini-2.5-flash",   # your configured model
     instruction=B_SYSTEM_PROMPT,
-    tools=[google_search],
-    output_schema=VerifyOutput,     # <-- enforce structured output via Pydantic
-    output_key="sources"
+    tools=[google_search],      # <-- live web search
+    output_schema=VerifyOutput
 )
