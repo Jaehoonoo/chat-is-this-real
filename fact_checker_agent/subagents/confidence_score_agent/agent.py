@@ -2,8 +2,8 @@ from google.adk.agents import Agent
 from pydantic import BaseModel
 
 class ConfidenceScoreOutput(BaseModel):
-    confidence_score: str = Field(
         description = ""
+    confidence_score: float = Field(
     )
     citations: str = Field(
         description = ""
