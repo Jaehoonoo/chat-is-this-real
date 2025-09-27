@@ -13,7 +13,7 @@ class ConfidenceScoreOutput(BaseModel):
     )
 
 
-root_agent = Agent(
+confidence_score_agent = Agent(
     model='gemini-2.0-flash-001',
     name='root_agent',
     description='A helpful assistant for user questions.',
