@@ -28,10 +28,7 @@ CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
     access to a tool called `get_source_weight` which you can use to accomplish
     your task.
 
-    The output MUST be JSON format. Output a list of JSON object, where each
-    object has two properties: domain, and weight. The domain needs to be the
-    domain of the source, and the weight has to be the weight of the source.
-    Output JSON with NO other comments!
+    Just output what the get_source_weight tool gives you.
 """
 
 def get_source_weight(
