@@ -103,7 +103,7 @@ async def main():
                 "domain": "bbc.com",
                 "credibility_score": 0.9,
                 "bias_label": "center",
-                "recency_score": 1.0,
+                "recency_score": 0.5,
                 "stance": "supports",
                 "reasoning": "The BBC is a highly credible source, and the article explains the UN report attributing global warming to fossil fuels, thus supporting the claim. The article was published very recently."
             }
