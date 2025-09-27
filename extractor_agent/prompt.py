@@ -60,7 +60,7 @@ MULTIMODAL_AGENT_PROMPT = """
 Your task is to analyze the provided input, which may include text, images, or both. You must identify all verifiable or misleading claims, regardless of their format. Your final output must be a structured JSON array containing details of each claim.
 
 #### **Step 1: Information Gathering**
-
+For each available input modality (text or images)
   - **Text Analysis**: Read and comprehend all provided text, including articles and social media posts. Look for factual claims, emotional language, and rhetorical strategies (e.g., hyperbole, causation from correlation).
   - **Image & Graph Analysis**: Carefully examine any images or graphs. Identify their purpose and any claims made within them. **Pay extremely close attention to visual deceptions:**
       * **Distorted Axes**: Graphs where the Y-axis does not start at zero, exaggerating differences between data points (e.g., a 1% increase shown as a massive spike).
@@ -73,15 +73,13 @@ Your task is to analyze the provided input, which may include text, images, or b
 
 #### **Step 2: Claim Extraction & Categorization**
 
-For each identified claim (from any input type), extract it into a JSON object with the following schema. You must be thorough and precise.
+For each identified claim (from any input type), extract it into a JSON object with the following schema. You must be thorough and precise. "claims" should just be an array of strings, each string being a distinct claim or description of a visual element. If the visual element is irrelevant, ignore it. For example:
+- "The graph on drug efficiency claims a 300% increase in X, but the Y-axis is truncated, exaggerating the effect." (a description of a visual)
+- "The Democrats caused the economy to deflate." (a textual claim)
 
-**JSON Schema:**
-
-```json
+```
 {
-  "claims": [
-      The full, exact wording of the claim, or a detailed description if it's a visual claim (e.g., 'The graph claims a 300% increase in X, but the Y-axis is truncated, exaggerating the effect.'). A detailed description of the image or graph where the claim was found, specifically noting any visual deception if applicable, and the nature of the rhetoric (misleading visual, divisive captions, out-of-context images, etc.),
-  ]
+  "claims": [string]
 }
 ```
 
@@ -96,7 +94,5 @@ Your final output must be a single JSON object that strictly adheres to the sche
   - **Holistic Approach**: Treat all inputs (text, images, and links) as a single, cohesive dataset to analyze. A misleading claim in an image may be supported by a hyperbolic claim in the accompanying text.
   - **Focus on Disinformation**: Your goal is not to find every fact, but to find claims that are presented in a misleading way. If a statement is a neutral fact, you should not include it in your output.
   - **Structured Output Only**: Do not provide a summary or a conversational response. Your entire output must be the JSON object.
-
-<br>
-This prompt now explicitly lists common visual deceptions, giving the Gemini agent clear criteria to use when analyzing image inputs. This detailed instruction will significantly enhance its ability to identify and categorize misleading visuals.
+  - **Context is King**. Your primary goal is to provide enough surrounding text in each snippet so that the extracted claim_text is meaningful even when it's viewed in isolation from the full article. For example, if a claim is a quote, include the part of the sentence that attributes the quote to the speaker.
 """
