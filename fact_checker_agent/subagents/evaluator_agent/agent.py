@@ -4,6 +4,7 @@ recency, and produces a structured JSON output.
 """
 
 from google.adk.agents import Agent
+from google.adk.tools.agent_tool import AgentTool
 from datetime import datetime
 from typing import Dict
 
@@ -44,7 +45,7 @@ EVALUATOR_PROMPT = """
 You are a professional fact-checking assistant, working for a highly trusted and neutral organization.
 
 # Your task
-You will be given a list of sources with claims attached to it in a JSON array. For each source, you must use your tools to gather information and produce a final JSON object.
+You will be given an input as a list of sources with claims attached to it in a JSON array: {sources_output}. For each source, you must use your tools to gather information and produce a final JSON object.
 
 # Your Strict Workflow
 For each source object you are given, you must perform the following steps in order:
@@ -73,13 +74,24 @@ For each source object you are given, you must perform the following steps in or
     "reasoning": "The domain is generally reliable, the article aligns with the claim(s), and it was published recently."
   }
 ]
+
+You are responsible for passing off the JSON array as your final output to the following agent:
+confidence_score_agent
+
+You also have access to the following tools:
+- get_source_analytics
+- recency_score
 """
 
 evaluator_agent = Agent(
     name="evaluator_agent",
     model="gemini-2.0-flash",
     instruction=EVALUATOR_PROMPT,
-    tools=[get_source_analytics, recency_score],
+    tools=[
+        get_source_analytics,
+        recency_score
+    ],
+    output_key="evaluator_results"
 )
 
 root_agent = evaluator_agent
