@@ -50,3 +50,10 @@ if __name__ == "__main__":
         role="user", parts = [types.Part(text="do the tasks that you are made to do")]
     )
 
+    # Where `e` stands for "event."
+    for e in runner.run(
+        user_id=USER_ID,
+        session_id=SESSION_ID,
+        new_message=nm
+    ):
+
