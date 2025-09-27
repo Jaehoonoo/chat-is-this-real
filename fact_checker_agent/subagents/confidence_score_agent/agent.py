@@ -1,6 +1,18 @@
 from google.adk.agents import Agent
 from pydantic import BaseModel
 
+class ConfidenceScoreOutput(BaseModel):
+    confidence_score: str = Field(
+        description = ""
+    )
+    citations: str = Field(
+        description = ""
+    )
+    explanation: str = Field(
+        description = ""
+    )
+
+
 root_agent = Agent(
     model='gemini-2.0-flash-001',
     name='root_agent',
