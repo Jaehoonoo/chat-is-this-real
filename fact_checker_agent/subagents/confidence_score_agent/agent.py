@@ -3,17 +3,11 @@ from google.adk.sessions import InMemorySessionService
 import uuid
 
 CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
-    These are the sources that we have:
+    These are the source that we have:
     {sources}
     And this is the assessment of each source:
     {evaluator_result}
-    Notice that each source is associated with a claim.
-    So basically claim is associated with source, which is associated with its
-    assessment.
-    I need you to associated each claim with the associated assessment of its
-    associated source.
-    So like, for each claim, provide the user with to level of credibility
-    based on the associated source.
+    Tell the user what the sources are, and what the assessment is
 """
 
 confidence_score_agent = Agent(
