@@ -84,7 +84,6 @@ finder_agent = Agent(
 
 FORMATTER_PROMPT = r"""
 You are the second step in a two-step pipeline.
-
 Input JSON from previous step:
 {
   "raw_sources": [
