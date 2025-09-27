@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Evaluator Agent with credibility, bias, recency, and stance scoring."""
+"""Evaluator Agent without output_schema (JSON enforcement is handled by prompt)."""
 
 from google.adk.agents import Agent
 from datetime import datetime
@@ -30,19 +30,11 @@ CREDIBILITY_DB: Dict[str, float] = {
     "cnn.com": 0.85,
     "theguardian.com": 0.9,
     "wsj.com": 0.88,
-    # Extendable with more sources
 }
 
 def get_domain_credibility(domain: str) -> float:
     """
     Look up the credibility score for a domain.
-    
-    Args:
-        domain: The domain name of the news source.
-    
-    Returns:
-        A credibility score between 0.0 and 1.0.
-        Defaults to 0.5 for unknown domains.
     """
     if not domain or not isinstance(domain, str):
         return 0.5
@@ -50,17 +42,7 @@ def get_domain_credibility(domain: str) -> float:
 
 def recency_score(published_date: str) -> float:
     """
-    Compute how recent a piece of content is.
-    
-    Args:
-        published_date: ISO 8601 formatted datetime string.
-    
-    Returns:
-        A recency score between 0.0 and 1.0:
-          - 1.0 if within 7 days
-          - 0.8 if within 30 days
-          - 0.5 if within 180 days
-          - 0.2 if older
+    Compute recency score from ISO8601 date string.
     """
     try:
         pub = datetime.fromisoformat(published_date)
@@ -115,9 +97,8 @@ For each source, produce an evaluation row with the following fields:
 ]
 """
 
-
 # -------------------------------------------------------------------
-# Agent Definition
+# Agent Definition (no output_schema)
 # -------------------------------------------------------------------
 
 evaluator_agent = Agent(
@@ -125,8 +106,8 @@ evaluator_agent = Agent(
     model="gemini-2.0-flash",
     instruction=EVALUATOR_PROMPT,
     tools=[get_domain_credibility, recency_score],
+    output_key="evaluator_result",
 )
 
 # Required by ADK CLI
 root_agent = evaluator_agent
-
