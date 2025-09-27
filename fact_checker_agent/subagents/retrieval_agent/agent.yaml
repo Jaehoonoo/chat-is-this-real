@@ -1,4 +1,4 @@
-name: source_evaluator_agent
+name: source_retrieval_agent
 model: gemini-2.0-flash
 instruction: |
   You are a fact-checking assistant. 
@@ -12,5 +12,5 @@ instruction: |
 
   Always output strictly in JSON format.
 tools:
-  - entry_point: fact_checker_agent.subagents.evaluator_agent.agent:get_domain_credibility
-  - entry_point: fact_checker_agent.subagents.evaluator_agent.agent:recency_score
+  - entry_point: fact_checker_agent.subagents.retrieval_agent.agent:get_domain_credibility
+  - entry_point: fact_checker_agent.subagents.retrieval_agent.agent:recency_score
