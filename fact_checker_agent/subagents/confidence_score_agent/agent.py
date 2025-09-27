@@ -56,4 +56,7 @@ if __name__ == "__main__":
         session_id=SESSION_ID,
         new_message=nm
     ):
-
+            if e.is_final_response() and e.content and e.content.parts:
+                print(
+                    f"Final response: {e.content.parts[0].text}"
+                )
