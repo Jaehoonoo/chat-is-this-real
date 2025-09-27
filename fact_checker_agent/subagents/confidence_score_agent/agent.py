@@ -45,3 +45,8 @@ if __name__ == "__main__":
         app_name=APP_NAME,
         session_service=session_service_stateful
     )
+
+    nm = types.Content(
+        role="user", parts = [types.Part(text="do the tasks that you are made to do")]
+    )
+
