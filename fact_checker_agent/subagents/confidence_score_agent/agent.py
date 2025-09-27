@@ -4,6 +4,7 @@ from google.adk.runners import Runner
 from google.genai import types
 import uuid
 import asyncio
+from google.adk.tools import ToolContext
 
 CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
     You are a professional agent whose job is to be the judge in a
