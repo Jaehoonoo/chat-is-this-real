@@ -30,7 +30,7 @@ class SourceItem(BaseModel):
     domain: str
     article_text: str
     published_date: str
-    original_claim: str
+    original_claim: list
 
 class SourcesOutput(BaseModel):
     # NOTE: named "sources" per request
@@ -54,21 +54,19 @@ Input JSON:
 Your task:
 - Use ONLY the google_search tool to find up to 15 unique, reputable URLs
   relevant to the combined set of claims.
-- Prefer primary/authoritative sources: .gov, .edu, journals, official press,
-  standards bodies, reputable newsrooms (diversify outlets).
 - Avoid duplicates and near-duplicates (same domain + same story).
 - Focus on direct, authoritative pages rather than aggregator blogs.
 
 Output (STRICT):
 {
   "raw_sources": [
-    {"domain": "..", "article_text": "...", "published_date": "...", "original_claim": "..."}
+    {"domain": "..", "article_text": "...", "published_date": "...", "original_claim": [...] }
   ]
 }
 
 Rules:
-- Consider only the first 5 claims.
-- Cap total results at 15 across ALL claims.
+- Consider only the first 5 claims per source.
+- Cap total results at 15 sources.
 - Return ONLY the JSON object above. No extra commentary.
 """
 
@@ -90,7 +88,7 @@ You are the second step in a two-step pipeline.
 Input JSON from previous step:
 {
   "raw_sources": [
-    {"domain": "..", "article_text": "...", "published_date": "...", "original_claim": "..."}
+    {"domain": "..", "article_text": "...", "published_date": "...", "original_claim": [...]}
   ]
 }
 Your task:
@@ -98,7 +96,7 @@ Your task:
 
 {
   "sources": [
-    {"domain": "..", "article_text": "...", "published_date": "...", "original_claim": "..."}
+    {"domain": "..", "article_text": "...", "published_date": "...", "original_claim": [...]}
   ]
 }
 
