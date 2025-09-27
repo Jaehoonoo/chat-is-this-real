@@ -38,3 +38,9 @@ if __name__ == "__main__":
         session_id=SESSION_ID,
         state=initial_state
     )
+
+    runner = Runner(
+        agent=confidence_score_agent,
+        app_name=APP_NAME,
+        session_service=session_service_stateful
+    )
