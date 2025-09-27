@@ -27,9 +27,10 @@ from google.adk.tools import google_search
 # -------------------------------------------------------------------
 
 class SourceItem(BaseModel):
-    url: HttpUrl
-    outlet: str
-    why_reliable: str
+    domain: str
+    article_text: str
+    published_date: str
+    original_claim: str
 
 class SourcesOutput(BaseModel):
     # NOTE: named "sources" per request
@@ -61,7 +62,7 @@ Your task:
 Output (STRICT):
 {
   "raw_sources": [
-    { "url": "<absolute url>", "title": "<page title or best guess>" }
+    {"domain": "..", "article_text": "...", "published_date": "...", "original_claim": "..."}
   ]
 }
 
@@ -89,17 +90,15 @@ You are the second step in a two-step pipeline.
 Input JSON from previous step:
 {
   "raw_sources": [
-    { "url": "...", "title": "..." },
-    ...
+    {"domain": "..", "article_text": "...", "published_date": "...", "original_claim": "..."}
   ]
 }
-
 Your task:
 - Convert raw_sources into the final schema:
 
 {
   "sources": [
-    { "url": "<absolute url>", "outlet": "<publisher>", "why_reliable": "<=12 words>" }
+    {"domain": "..", "article_text": "...", "published_date": "...", "original_claim": "..."}
   ]
 }
 
