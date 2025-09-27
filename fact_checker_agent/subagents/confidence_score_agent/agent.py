@@ -13,6 +13,13 @@ CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
     Tell the user what the sources are, and what the assessment is
 """
 
+def get_source_weight(
+    credibility: float,
+    bias: str,
+    recency: float
+):
+    return credibility * recency if bias == "center" else credibility * recency * 0.75
+
 confidence_score_agent = Agent(
     model="gemini-2.0-flash-001",
     name="confidence_score_agent",
