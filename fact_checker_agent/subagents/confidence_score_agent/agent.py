@@ -24,11 +24,8 @@ CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
     And this is the assessment of each source:
     {evaluator_result}
 
-    Your task is to calculate the source weight for each source. You have
-    access to a tool called `get_source_weight` which you can use to accomplish
-    your task.
-
-    Just output what the get_source_weight tool gives you.
+    Your task is to display to the user the get_evidence_score tool to display
+    to the user the evidence score.
 """
 
 def get_evidence_score(tool_context: ToolContext) -> dict:
