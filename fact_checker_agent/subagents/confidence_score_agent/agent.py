@@ -3,6 +3,7 @@ from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
 from google.genai import types
 import uuid
+import asyncio
 
 CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
     These are the source that we have:
@@ -22,7 +23,7 @@ confidence_score_agent = Agent(
 )
 
 # Executes required runner logic for unit test of conf score agnt.
-if __name__ == "__main__":
+async def main():
     session_service_stateful = InMemorySessionService()
 
     initial_state = {
@@ -33,7 +34,7 @@ if __name__ == "__main__":
     APP_NAME = "Conf Score Agnt"
     USER_ID = "kalyanolivera"
     SESSION_ID = str(uuid.uuid4())
-    stateful_session = session_service_stateful.create_session(
+    stateful_session = await session_service_stateful.create_session(
         app_name=APP_NAME,
         user_id=USER_ID,
         session_id=SESSION_ID,
@@ -60,3 +61,6 @@ if __name__ == "__main__":
                 print(
                     f"Final response: {e.content.parts[0].text}"
                 )
+
+if __name__ == "__main__":
+    asyncio.run(main())
