@@ -1,107 +1,73 @@
-# Copyright 2025 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-"""Evaluator Agent with credibility, bias, recency, and stance scoring."""
+"""
+A single Evaluator Agent that uses tools for credibility, bias, and
+recency, and produces a structured JSON output.
+"""
 
 from google.adk.agents import Agent
 from datetime import datetime
 from typing import Dict
 
-# -------------------------------------------------------------------
-# Domain credibility database
-# -------------------------------------------------------------------
+from .data import SOURCE_ANALYTICS_DB
 
-CREDIBILITY_DB: Dict[str, float] = {
-    "nytimes.com": 0.9,
-    "foxnews.com": 0.6,
-    "breitbart.com": 0.3,
-    "bbc.com": 0.95,
-    "cnn.com": 0.85,
-    "theguardian.com": 0.9,
-    "wsj.com": 0.88,
-    # Extendable with more sources
-}
-
-def get_domain_credibility(domain: str) -> float:
+def get_source_analytics(domain: str) -> dict:
     """
-    Look up the credibility score for a domain.
+    Looks up credibility and bias information for a given news domain.
     
     Args:
-        domain: The domain name of the news source.
+        domain: The domain name of the news source (e.g., "nytimes.com").
     
     Returns:
-        A credibility score between 0.0 and 1.0.
-        Defaults to 0.5 for unknown domains.
+        A dictionary with 'credibility_score' and 'bias_label'.
     """
-    if not domain or not isinstance(domain, str):
-        return 0.5
-    return CREDIBILITY_DB.get(domain.lower().strip(), 0.5)
+    clean_domain = domain.lower().strip().replace("www.", "")
+    # Return from DB or a default neutral value for unknown domains
+    return SOURCE_ANALYTICS_DB.get(
+        clean_domain, {"credibility_score": 0.5, "bias_label": "center"}
+    )
 
 def recency_score(published_date: str) -> float:
     """
-    Compute how recent a piece of content is.
+    Computes how recent a piece of content is. Higher score is better.
     
     Args:
         published_date: ISO 8601 formatted datetime string.
     
     Returns:
-        A recency score between 0.0 and 1.0:
-          - 1.0 if within 7 days
-          - 0.8 if within 30 days
-          - 0.5 if within 180 days
-          - 0.2 if older
+        A recency score between 0.0 and 1.0.
     """
     try:
-        pub = datetime.fromisoformat(published_date)
-    except Exception:
-        return 0.2  # fallback for bad date format
-    days_old = (datetime.now() - pub).days
-    if days_old <= 7:
-        return 1.0
-    elif days_old <= 30:
-        return 0.8
-    elif days_old <= 180:
-        return 0.5
-    return 0.2
-
-# -------------------------------------------------------------------
-# Evaluator Agent Prompt
-# -------------------------------------------------------------------
+        pub_date = datetime.fromisoformat(published_date)
+        if pub_date.tzinfo is None:
+            # Set timezone to local machine's for accurate comparison
+            pub_date = pub_date.replace(tzinfo=datetime.now().astimezone().tzinfo)
+        now = datetime.now(pub_date.tzinfo)
+        days_old = (now - pub_date).days
+        
+        if days_old <= 7: return 1.0
+        elif days_old <= 30: return 0.8
+        elif days_old <= 180: return 0.5
+        return 0.2
+    except (ValueError, TypeError):
+        return 0.0
 
 EVALUATOR_PROMPT = """
 You are a professional fact-checking assistant, working for a highly trusted and neutral organization.
 
 # Your task
-You will be given a list of sources. Each source includes:
-  * domain (the source domain of the article)
-  * article text (the content being analyzed)
-  * published_date (ISO format)
-  * original_claim (the claim being fact-checked)
+You will be given a list of sources in a JSON array. For each source, you must use your tools to gather information and produce a final JSON object.
 
-For each source, produce an evaluation row with the following fields:
-
-- credibility_score (float, 0.0–1.0): Reliability of the source domain. Use the provided credibility tool, and adjust if content warrants.
-- bias_label (string, one of: "left", "center", "right", "mixed"): The likely political/ideological bias of the source or article.
-- recency_score (float, 0.0–1.0): How current the content is, using the recency scoring tool.
-- stance (string, one of: "supports", "opposes", "neutral"): Whether the article supports, opposes, or is neutral toward the original_claim.
-- reasoning (string): A concise explanation (1–2 sentences).
+# Instructions for each source:
+1.  **Call `get_source_analytics` tool**: Use the source's domain to get its `credibility_score` and `bias_label`.
+2.  **Call `recency_score` tool**: Use the source's `published_date` to get its `recency_score`.
+3.  **Analyze Content**: Read the `article_text` to determine the `stance` (one of: "supports", "opposes", "neutral") towards the `original_claim`.
+4.  **Provide Reasoning**: Write a concise, one-sentence `reasoning` for the determined stance.
 
 # Output format
-- Output a **strictly valid JSON array**, where each element is an object corresponding to a single source.
-- Do not add commentary or text outside the JSON.
-- Example structure:
+- Your final output MUST be a **strictly valid JSON array of objects**.
+- Do not add any commentary or text outside the JSON structure.
+- Each object in the array must correspond to a single source and contain all the evaluated fields.
 
+# Example structure:
 [
   {
     "domain": "example.com",
@@ -110,23 +76,15 @@ For each source, produce an evaluation row with the following fields:
     "recency_score": 1.0,
     "stance": "supports",
     "reasoning": "The domain is generally reliable, the article aligns with the claim, and it was published recently."
-  },
-  ...
+  }
 ]
 """
-
-
-# -------------------------------------------------------------------
-# Agent Definition
-# -------------------------------------------------------------------
 
 evaluator_agent = Agent(
     name="evaluator_agent",
     model="gemini-2.0-flash",
     instruction=EVALUATOR_PROMPT,
-    tools=[get_domain_credibility, recency_score],
+    tools=[get_source_analytics, recency_score],
 )
 
-# Required by ADK CLI
 root_agent = evaluator_agent
-
