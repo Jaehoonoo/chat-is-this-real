@@ -31,10 +31,9 @@ CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
     Just output what the get_source_weight tool gives you.
 """
 
-def get_source_weights(tool_context: ToolContext) -> dict:
+def get_evidence_score(tool_context: ToolContext) -> dict:
     """
-    Accepts as an argument just the tools context. Returns a list of dicts
-    relating sources and their associated weights.
+    Accepts as an argument just the tools context. Returns the evidence score.
     """
     a = []
     for i in tool_context.state.get("evaluator_result", "fib"):
