@@ -21,7 +21,7 @@ confidence_score_agent = Agent(
 
 # Executes required runner logic for unit test of conf score agnt.
 if __name__ == "__main__":
-    session_service_stateful = InMemorySessionService
+    session_service_stateful = InMemorySessionService()
 
     initial_state = {
         "sources": "hi how are u",
