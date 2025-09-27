@@ -116,6 +116,7 @@ formatter_agent = Agent(
     instruction=FORMATTER_PROMPT,
     output_schema=SourcesOutput,  # strict structured output named "sources"
     # IMPORTANT: no tools here when output_schema is set
+    output_key="sources_output"
 )
 
 # -------------------------------------------------------------------
@@ -125,7 +126,7 @@ formatter_agent = Agent(
 retrieval_agent = SequentialAgent(
     name="retrieval_agent",
     description="Step 1: find URLs with google_search; Step 2: format to {sources:[...]}.",
-    sub_agents=[finder_agent, formatter_agent],
+    sub_agents=[finder_agent, formatter_agent]
 )
 
 # Required by ADK CLI
