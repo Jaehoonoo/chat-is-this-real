@@ -16,7 +16,7 @@ CONFIDENCE_SCORE_AGENT_INSTRUCTION = ""
 
 confidence_score_agent = Agent(
     model='gemini-2.0-flash-001',
-    name='root_agent',
+    name='confidence_score_agent',
     description='A helpful assistant for user questions.',
     instruction=CONFIDENCE_SCORE_AGENT_INSTRUCTION,
     output_key="confidence_score"
