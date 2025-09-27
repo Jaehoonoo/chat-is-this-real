@@ -32,17 +32,25 @@ def get_evidence_score(tool_context: ToolContext) -> dict:
     """
     Accepts as an argument just the tools context. Returns the evidence score.
     """
-    a = []
-    for i in tool_context.state.get("evaluator_result", "fib"):
-        a.append(
+    
+    evidence_score = 0
+
+    sas = []
+    # Where `sa` stands for "source assessment."
+    for sa in tool_context.state.get("evaluator_result", "fib"):
+        d = sa["domain"]
+        w = sa["recency_score"] * sa["credibility_score"]
+        s = 1 if sa["stance"] == "supports" else -1 if sa["stance"] == "opposes" else 0
+        sas.append(
             {
-                "domain": i["domain"],
-                "weight": i["recency_score"] * i["credibility_score"]
+                "domain": d,
+                "weight": w,
+                "stance": s
             }
         )
-    tool_context.state["source_weights"] = a
-    return a
-
+        evidence_score += s*w
+    tool_context.state["source_weights"] = sas
+    return evidence_score
 
 confidence_score_agent = Agent(
     model="gemini-2.0-flash-001",
