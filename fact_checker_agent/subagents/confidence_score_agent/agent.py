@@ -31,11 +31,7 @@ CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
     Just output what the get_source_weight tool gives you.
 """
 
-def get_source_weight(
-    credibility: float,
-    bias: str,
-    recency: float
-) -> float:
+def get_source_weights(tool_context: ToolContext) -> dict:
     """
     Obtain a sources "weight" given its credibility, recency, and bias.
     """
