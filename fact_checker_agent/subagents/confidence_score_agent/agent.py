@@ -28,3 +28,12 @@ if __name__ == "__main__":
         "evaluator_result": "whats going on"
     }
 
+    APP_NAME = "Conf Score Agnt"
+    USER_ID = "kalyanolivera"
+    SESSION_ID = str(uuid.uuid4())
+    stateful_session = session_service_stateful.create_session(
+        app_name=APP_NAME,
+        user_id=USER_ID,
+        session_id=SESSION_ID,
+        state=initial_state
+    )
