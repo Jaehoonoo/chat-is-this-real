@@ -34,7 +34,26 @@ async def main():
     session_service_stateful = InMemorySessionService()
 
     initial_state = {
-        "sources": "hi how are u",
+        "sources": [
+            {
+                "domain": "nytimes.com",
+                "article_text": "A recent report from the New York Times confirms that climate change is accelerating, citing new NASA data.",
+                "published_date": "2025-09-20",
+                "original_claim": "Climate change is accelerating due to human activity."
+            },
+            {
+                "domain": "foxnews.com",
+                "article_text": "Fox News ran a segment suggesting that the link between climate change and human activity is exaggerated.",
+                "published_date": "2025-09-15",
+                "original_claim": "Climate change is accelerating due to human activity."
+            },
+            {
+                "domain": "bbc.com",
+                "article_text": "BBC published an article explaining the latest UN report on the rapid increase of global warming, largely attributed to fossil fuels.",
+                "published_date": "2025-09-10",
+                "original_claim": "Climate change is accelerating due to human activity."
+            }
+        ],
         "evaluator_result": "whats going on"
     }
 
