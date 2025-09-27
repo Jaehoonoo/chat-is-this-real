@@ -1,5 +1,4 @@
 from google.adk.agents import Agent
-from pydantic import BaseModel
 
 CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
     These are the sources that we have:
