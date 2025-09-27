@@ -12,11 +12,13 @@ class ConfidenceScoreOutput(BaseModel):
         description = ""
     )
 
+CONFIDENCE_SCORE_AGENT_INSTRUCTION = ""
+
 confidence_score_agent = Agent(
     model='gemini-2.0-flash-001',
     name='root_agent',
     description='A helpful assistant for user questions.',
-    instruction='Answer user questions to the best of your knowledge',
+    instruction=CONFIDENCE_SCORE_AGENT_INSTRUCTION,
     output_key="confidence_score"
     output_schema=ConfidenceScoreOutput
 )
