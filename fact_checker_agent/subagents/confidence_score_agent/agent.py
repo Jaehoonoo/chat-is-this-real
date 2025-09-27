@@ -24,3 +24,8 @@ confidence_score_agent = Agent(
     instruction=CONFIDENCE_SCORE_AGENT_INSTRUCTION,
     output_key="confidence_score"
 )
+
+# Executes required runner logic for unit test of conf score agnt.
+if __name__ == "__main__":
+    session_service_stateful = InMemorySessionService
+
