@@ -54,7 +54,32 @@ async def main():
                 "original_claim": "Climate change is accelerating due to human activity."
             }
         ],
-        "evaluator_result": "whats going on"
+        "evaluator_result": [
+            {
+                "domain": "nytimes.com",
+                "credibility_score": 0.9,
+                "bias_label": "center",
+                "recency_score": 1.0,
+                "stance": "supports",
+                "reasoning": "The New York Times is a highly credible source, and the article explicitly confirms the claim using NASA data. The article was also published very recently."
+            },
+            {
+                "domain": "foxnews.com",
+                "credibility_score": 0.6,
+                "bias_label": "right",
+                "recency_score": 1.0,
+                "stance": "opposes",
+                "reasoning": "Fox News has a right-leaning bias, and the article suggests that the link between climate change and human activity is exaggerated, thus opposing the claim. The article was published very recently."
+            },
+            {
+                "domain": "bbc.com",
+                "credibility_score": 0.9,
+                "bias_label": "center",
+                "recency_score": 1.0,
+                "stance": "supports",
+                "reasoning": "The BBC is a highly credible source, and the article explains the UN report attributing global warming to fossil fuels, thus supporting the claim. The article was published very recently."
+            }
+        ]
     }
 
     APP_NAME = "Conf Score Agnt"
