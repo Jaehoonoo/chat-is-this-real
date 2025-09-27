@@ -53,8 +53,8 @@ def get_evidence_score(tool_context: ToolContext) -> dict:
 confidence_score_agent = Agent(
     model="gemini-2.0-flash-001",
     name="confidence_score_agent",
-    description="""You are an agent responsible for giving a confidence score
-    with regards to how confident you are.""",
+    description="""A professional agent whose job is to be the judge in a
+    fact-checking system to combat misinformation.""",
     instruction=CONFIDENCE_SCORE_AGENT_INSTRUCTION,
     output_key="confidence_score",
     tools=[get_source_weights]
