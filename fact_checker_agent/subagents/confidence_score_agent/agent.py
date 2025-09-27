@@ -19,4 +19,5 @@ confidence_score_agent = Agent(
     description='A helpful assistant for user questions.',
     instruction='Answer user questions to the best of your knowledge',
     output_key="confidence_score"
+    output_schema=ConfidenceScoreOutput
 )
