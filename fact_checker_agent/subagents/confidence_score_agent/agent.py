@@ -41,7 +41,7 @@ def get_source_weights(tool_context: ToolContext) -> dict:
         a.append(
             {
                 "domain": i["domain"],
-                "weights": i["recency_score"] * i["credibility_score"]
+                "weight": i["recency_score"] * i["credibility_score"]
             }
         )
     tool_context.state["source_weights"] = a
