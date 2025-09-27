@@ -29,3 +29,8 @@ confidence_score_agent = Agent(
 if __name__ == "__main__":
     session_service_stateful = InMemorySessionService
 
+    initial_state = {
+        "sources": "hi how are u",
+        "evaluator_result": "whats going on"
+    }
+
