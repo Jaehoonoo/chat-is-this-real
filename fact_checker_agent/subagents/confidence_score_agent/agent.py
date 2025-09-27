@@ -30,6 +30,7 @@ CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
     The output MUST be JSON format. Output a list of JSON object, where each
     object has two properties: domain, and weight. The domain needs to be the
     domain of the source, and the weight has to be the weight of the source.
+    Output JSON with NO other comments!
 """
 
 def get_source_weight(
