@@ -8,4 +8,9 @@ fact_checker_agent = Agent(
     name='root_agent',
     description='A helpful assistant for user questions.',
     instruction='Answer user questions to the best of your knowledge',
+    sub_agents=[
+        confidence_score_agent,
+        evaluator_agent,
+        retrieval_agent
+    ]
 )
