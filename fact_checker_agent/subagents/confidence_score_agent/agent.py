@@ -33,9 +33,19 @@ CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
 
 def get_source_weights(tool_context: ToolContext) -> dict:
     """
-    Obtain a sources "weight" given its credibility, recency, and bias.
+    Accepts as an argument just the tools context. Returns a list of dicts
+    relating sources and their associated weights.
     """
-    return credibility * recency if bias == "center" else credibility * recency * 0.75
+    a = []
+    for i in tool_context.state.get("evaluator_result", "fib"):
+        a.append(
+            {
+                "domain": i["domain"],
+                "weights": i["recency_score"] * i["credibility_score"]
+            }
+        )
+    tool_context.state["source_weights"] = a
+    return a
 
 confidence_score_agent = Agent(
     model="gemini-2.0-flash-001",
