@@ -9,6 +9,8 @@ sys.path.append("../")
 from extractor_agent.agent import root_agent as fetcher_agent
 from fact_checker_agent.agent import root_agent as fact_checker_agent
 from retrieval_agent.agent import root_agent as retrieval_agent
+from evaluator_agent.agent import root_agent as evaluator_agent
+
 import dotenv
 dotenv.load_dotenv()
 
@@ -27,11 +29,7 @@ class LinkInput(BaseModel):
 # ---------------------------------------------
 root_agent = SequentialAgent(
     name="RootAgent",
-    sub_agents=[
-        fetcher_agent,
-        retrieval_agent,
-        fact_checker_agent, # As per your comment, you might remove this
-    ],
+    sub_agents=[fetcher_agent, retrieval_agent, evaluator_agent, fact_checker_agent],
 )
 
 # ---------------------------------------------
