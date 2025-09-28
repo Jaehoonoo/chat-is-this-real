@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Chat Is This Real?",
+  "version": "1.0",
+  "description": "A fact-checking extension that analyzes web pages for misleading claims.",
+  "permissions": [
+    "activeTab",
+    "scripting"
+],
+  "action": {},   
+  "host_permissions": [
+    "https://your-backend-api.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["contentScript.js"],
+      "css": ["styles.css"]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Chat Is This Real?</title>
+		<link rel="stylesheet" href="styles.css" />
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<h1>Chat Is This Real?</h1>
+				<p class="subtitle">Completely agentic fact checking</p>
+			</div>
+
+			<div class="status" id="status">
+				Click "Analyze Page" to check for misleading claims
+			</div>
+
+			<button class="analyze-btn" id="analyzeBtn">Analyze Current Page</button>
+
+			<div id="loading">
+				<p>🔍 Analyzing content...</p>
+			</div>
+
+			<div id="results-container">
+				<!-- Results will be populated here -->
+			</div>
+		</div>
+
+		<script src="popup.js"></script>
+	</body>
+</html>
