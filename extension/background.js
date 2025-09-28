@@ -38,11 +38,29 @@ chrome.action.onClicked.addListener(async (tab) => {
 // Handle messages from content script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	if (message.type === 'ANALYZE_PAGE') {
-		// Forward analysis request (could connect to your backend here)
-		simulateAnalysis().then((results) => {
-			sendResponse({ success: true, data: results });
-		});
-		return true; // Keep message channel open
+        analyzePage(message.url)
+            .then( 
+                (results) => {
+                    sendResponse(
+                        {
+                            success: true, 
+                            data: results
+                        }
+                    );
+                }
+            )
+            .catch(
+                (error) => {
+                    console.error('API call failed:', error);
+                    sendResponse(
+                        {
+                            success: false, 
+                            error: error.message
+                        }
+                    )
+                }
+            )
+		return true;
 	}
 });
 
