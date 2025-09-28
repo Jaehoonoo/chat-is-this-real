@@ -5,6 +5,8 @@ from google.genai import types
 import uuid
 import asyncio
 from google.adk.tools import ToolContext
+from collections import defaultdict
+import math
 
 CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
     You are a professional agent whose job is to be the judge in a
@@ -39,27 +41,74 @@ CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
 
 def get_evidence_score(tool_context: ToolContext) -> dict:
     """
-    Accepts as an argument just the tools context. Returns the evidence score.
+    Calculates a weighted evidence score for each individual claim.
+    Returns a dictionary mapping each claim to its evidence score.
     """
-    
-    evidence_score = 0
+    evaluator_results = tool_context.state.get("evaluator_result", [])
+    sources = tool_context.state.get("sources", [])
 
-    sas = []
-    # Where `sa` stands for "source assessment."
-    for sa in tool_context.state.get("evaluator_result"):
-        d = sa["domain"]
-        w = sa["recency_score"] * sa["credibility_score"]
-        s = 1 if sa["stance"] == "supports" else -1 if sa["stance"] == "opposes" else 0
-        sas.append(
-            {
-                "domain": d,
-                "weight": w,
-                "stance": s
-            }
-        )
-        evidence_score += s*w
-    tool_context.state["source_weights"] = sas
-    return evidence_score
+    # Creates a map from domain to its evaluation for easy lookup
+    evaluation_map = {item["domain"]: item for item in evaluator_results}
+
+    # Dictionary to hold the evidence score for each claim
+    claim_scores = defaultdict(float)
+
+    # Loop through the original sources to correctly group by claim
+    for source in sources:
+        claim = source["original_claim"]
+        domain = source["domain"]
+        
+        if domain in evaluation_map:
+            sa = evaluation_map[domain] # sa = source_assessment
+            
+            # Determine bias multiplier
+            bias_multiplier = 1.0 if sa.get("bias_label") == "center" else 0.75
+            
+            # Calculate source weight including bias
+            weight = sa["recency_score"] * sa["credibility_score"] * bias_multiplier
+            
+            # Determine stance value (+1, -1, or 0)
+            stance_value = 1 if sa["stance"] == "supports" else -1 if sa["stance"] == "opposes" else 0
+            
+            # Add the weight to the specific claim's score
+            claim_scores[claim] += stance_value * weight
+
+    # Save the detailed scores to the state for the confidence tool to use
+    tool_context.state["claim_scores"] = dict(claim_scores)
+    
+    return dict(claim_scores)
+
+def get_confidence_score(tool_context: ToolContext) -> float:
+    """
+    Calculates the confidence score based on the strength of the evidence scores
+    for all decisive (non-inconclusive) claims.
+    This tool MUST be called AFTER get_evidence_score.
+    """
+    # Read the per-claim scores calculated by the previous tool
+    claim_scores = tool_context.state.get("claim_scores")
+    
+    if not claim_scores:
+        return "Error: `get_evidence_score` must be run first to calculate claim scores."
+
+    decisive_scores = []
+    threshold = 0.25 # Threshold for a claim to be considered "decisive"
+    
+    # Filter for decisive claims and get their absolute strength
+    for score in claim_scores.values():
+        if abs(score) > threshold:
+            decisive_scores.append(abs(score))
+            
+    if not decisive_scores:
+        # If all claims were inconclusive, confidence is 0
+        return 0.0
+
+    # Calculate the average strength of the evidence
+    average_strength = sum(decisive_scores) / len(decisive_scores)
+    
+    # Use math.tanh to normalize the score into a 0-1 range
+    confidence_score = math.tanh(average_strength)
+    
+    return round(confidence_score, 3) # Return rounded score
 
 confidence_score_agent = Agent(
     model="gemini-2.0-flash-001",
