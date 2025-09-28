@@ -1,5 +1,11 @@
 # syntax=docker/dockerfile:1
-FROM python:3.11-slim
+FROM python:3.13-slim
+
+RUN python3.13 -m venv .venv 
+#RUN source .venv/bin/activate
+RUN python -m pip install --upgrade pip
+
+RUN pip3 install google-adk python-multipart uvicorn
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -19,7 +25,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
 
 # 2) Copy your own requirements (if any) and install
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt || true
+RUN pip3 install --no-cache-dir -r requirements.txt || true
 
 # --- Copy project code ---
 COPY . .
@@ -34,4 +40,4 @@ ENV GOOGLE_GENAI_USE_VERTEXAI="False"
 EXPOSE 8000
 
 # Start the ADK server for the chosen agent
-CMD ["sh", "-c", "adk web \"$AGENT_NAME\" --port \"${PORT:-8000}\""]
+CMD ["sh", "-c", "adk web --port \"${PORT:-8000}\""]
