@@ -26,46 +26,54 @@ from google.adk.tools import google_search
 # Output schema
 # -------------------------------------------------------------------
 
+
 class SourceItem(BaseModel):
     domain: str
+    source: str
     article_text: str
     published_date: str
     original_claim: list
+
 
 class SourcesOutput(BaseModel):
     # NOTE: named "sources" per request
     sources: List[SourceItem] = Field(
         default_factory=list,
-        description="Up to 15 diverse, reputable sources across all claims."
+        description="Up to 15 diverse, reputable sources across all claims.",
     )
+
 
 # -------------------------------------------------------------------
 # Step 1: Finder Agent (tools allowed, no output_schema)
 # -------------------------------------------------------------------
 
 FINDER_PROMPT = r"""
-You are the first step in a two-step pipeline.
+**ROLE**: You are an expert researcher tasked with verifying a set of claims for factual correctness, based on science and research. Your sole job is to find and provide a list of relevant sources that either support or contest the provided claims. You must not provide any other analysis or commentary.
 
-Input JSON:
-{claims}
+**TASK**
+    - For each claim, use search tool to find reputable sources that support or refute the claims. Focus on authoritative sources like academic journals, government reports, etc.
+    - Write a one-to-two-sentence summary for each source. This summary should clearly state whether the source supports, refutes, or provides no clear verdict on the claims.
 
-Your task:
-- Use ONLY the google_search tool to find up to 15 unique, reputable URLs
-  relevant to the combined set of claims.
-- Avoid duplicates and near-duplicates (same domain + same story).
-- Focus on direct, authoritative pages rather than aggregator blogs.
+Important Guidelines:
+    - List Format Only: Your entire output must be a simple, non-formatted list. Do not use tables, JSON, or any other structured format.
+    - Link First: For each source, the link must appear first.
+    - Concise Summary: Follow the link with a one-to-two-sentence summary that clearly states the source's verdict (supports, refutes, or provides no clear verdict) and what part of the source says so.
+    - No Other Content: Do not add any introductory phrases, closing remarks, or additional commentary. Your response should be nothing but the list of sources.
+    - Real Sources Only: Only include real, verifiable URLs.
+    - Diversity: Aim for a diverse set of sources, covering different perspectives and types of publications.
+    - Original Source Avoidance: Do not use the original source from the claim.
 
-Output (STRICT):
-{
-  "raw_sources": [
-    {"domain": "..", "article_text": "...", "published_date": "...", "original_claim": [...] }
-  ]
-}
+**Example of an acceptable output**:
+    Source: https://www.nytimes.com/2023/10/01/us/politics/new-policy.html
+    Date: 2023-10-01
+    Verdict: This New York Times article supports the claim that the new policy will reduce taxes, citing a recent government study.
 
-Rules:
-- Consider only the first 5 claims per source.
-- Cap total results at 15 sources.
-- Return ONLY the JSON object above. No extra commentary.
+    Source: https://www.cbo.gov/publication/56723
+    Date: 2023-09-15
+    Verdict: The CBO report refutes the claim, stating that the policy is projected to increase taxes for a majority of citizens.
+
+Return around 1-3 sources per claim, up to a maximum of 15 sources total.
+The claims you are to verify is listed in a JSON array as follows: {claims}
 """
 
 finder_agent = Agent(
@@ -81,31 +89,38 @@ finder_agent = Agent(
 # -------------------------------------------------------------------
 
 FORMATTER_PROMPT = r"""
-You are the second step in a two-step pipeline.
-Input JSON from previous step:
-{
-  "raw_sources": [
-    {"domain": "..", "article_text": "...", "published_date": "...", "original_claim": [...]}
-  ]
-}
-Your task:
-- Convert raw_sources into the final schema:
+You are an expert data formatter. You are the second and final step in a verification pipeline. Your task is to process a list of claims and their corresponding research summaries and present the results in a clean, structured format.
 
+<br>
+
+## Task
+
+Process the input provided from the previous agent. This input is a concise list of claims and the one-to-two-sentence summaries of supporting or refuting sources. Your job is to extract the key information from these summaries and format it into a structured JSON object.
+
+<br>
+
+## JSON Schema
+
+Your final output must be a single JSON object that strictly adheres to the following schema.
+
+```json
 {
   "sources": [
     {"domain": "..", "published_date": "...", "original_claim": [...]}
   ]
 }
+```
 
-Guidelines:
-- For "outlet": derive a concise publisher name from the URL/domain
-  (e.g., "CDC.gov", "Nature", "BBC", "NOAA", "Stanford.edu", "SEC").
-- For "why_reliable" (<= 12 words), use short rationales like:
-  "Official government data", "Peer-reviewed journal", "University site (.edu)",
-  "Company press release", "Standards body", "Major newsroom with editorial standards".
-- Keep at most 15 entries total.
-- Do NOT invent or change URLs; use them as given.
-- Output ONLY the JSON object matching the final schema—no extra commentary.
+<br>
+
+## Guidelines
+
+  - **DO NOT** modify the original URL in any way. Use it exactly as provided.
+  - **Derive `verdict`:** Use the one-to-two-sentence summary provided in the input directly as the `verdict`. Do not add any new information or modify the text.
+  - **Derive `why_reliable`:** Base this rationale on the nature of the source (e.g., `NPR` is a "Major news organization," `Nature.com` is a "Peer-reviewed journal," and `CDC.gov` is "Official government data"). Keep this short, under 12 words.
+  - **Final Output:** You must return **only** the JSON object. Do not include any extra commentary or text outside of the JSON block.
+
+<br>
 """
 
 formatter_agent = Agent(
@@ -114,7 +129,7 @@ formatter_agent = Agent(
     instruction=FORMATTER_PROMPT,
     output_schema=SourcesOutput,  # strict structured output named "sources"
     # IMPORTANT: no tools here when output_schema is set
-    output_key="sources_output"
+    output_key="sources_output",
 )
 
 # -------------------------------------------------------------------
@@ -124,7 +139,7 @@ formatter_agent = Agent(
 retrieval_agent = SequentialAgent(
     name="retrieval_agent",
     description="Step 1: find URLs with google_search; Step 2: format to {sources:[...]}.",
-    sub_agents=[finder_agent, formatter_agent]
+    sub_agents=[finder_agent, formatter_agent],
 )
 
 # Required by ADK CLI
