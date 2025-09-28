@@ -37,7 +37,7 @@ def get_evidence_score(tool_context: ToolContext) -> dict:
 
     sas = []
     # Where `sa` stands for "source assessment."
-    for sa in tool_context.state.get("evaluator_result", "fib"):
+    for sa in tool_context.state.get("evaluator_result"):
         d = sa["domain"]
         w = sa["recency_score"] * sa["credibility_score"]
         s = 1 if sa["stance"] == "supports" else -1 if sa["stance"] == "opposes" else 0
