@@ -41,7 +41,10 @@ class SourceProfilerOutput(BaseModel):
 
 ### --- Agent 1: Raw Data Researcher (Uses Tools) ---
 RAW_RESEARCHER_PROMPT = """
-You are a research assistant. Your mission is to use the google_search tool to find the source's credibility rating and potential bias in the entire list.
+You are a research assistant. Your mission is to use the google_search tool to find the source's credibility rating and potential bias in the entire list or to do research to make a best guess for the source's credibility rating and bias rating in the entire list.
+
+Your list of sources are:
+{sources_output}
 
 #### Your Workflow:
 1.  **Strategize**: Extract the domain and formulate 1-2 targeted search queries to investigate its reputation (e.g., `"domain" media bias`, `"domain" ownership`).
@@ -50,9 +53,6 @@ You are a research assistant. Your mission is to use the google_search tool to f
 
 Example Output:
 [{source: 'somedomain.xyz', "research_summary": "AllSides rates the source as 'Center'. Media Bias/Fact Check notes 'High' factual reporting and that it is owned by The Example Corporation."},{"source": 'anotherdomain.xyz', "research_summary": "AllSides rates the source as 'Center'. Media Bias/Fact Check notes 'High' factual reporting and that it is owned by The Example Corporation."}]
-
-Your list of source are:
-{sources_output}
 """
 
 raw_researcher_agent = Agent(

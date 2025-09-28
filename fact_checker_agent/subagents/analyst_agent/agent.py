@@ -35,6 +35,9 @@ from typing import Literal
 CHIEF_ANALYST_PROMPT = """
 You are a senior intelligence analyst. Your mission is to synthesize a collection of vetted evidence into a final, authoritative fact-checking report. Reason with yourself for each claim, and weigh each piece of evidence carefully.
 
+Your evidence packets are as follows:
+{evidence_packets}
+
 TASK: Go over each individual claim and evaluate it against the provided evidence packets. Follow the procedure for each claim. Keep outputs short.
 
 #### Your Cognitive Workflow:
@@ -75,7 +78,7 @@ If there are comments left by the Final Adjudicator, consider them while writing
 
 list of claims: state['claims']
 list of resources: state['sources_output'].
-Final Adjudicator comments: state['adjudicator_decision'].feedback
+Final Adjudicator comments: state['adjudicator_review'].feedback
 """
 
 

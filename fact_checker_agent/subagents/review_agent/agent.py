@@ -55,7 +55,7 @@ FinalAdjudicatorAgent = Agent(
     model="gemini-2.0-flash",
     instruction=ADJUDICATOR_PROMPT,
     tools=[exit_loop],
-    output_key="adjudicator_decision",
+    output_key="adjudicator_review",
 )
 
 root_agent = FinalAdjudicatorAgent
