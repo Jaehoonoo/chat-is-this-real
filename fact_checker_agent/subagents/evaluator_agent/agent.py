@@ -1,7 +1,7 @@
 from google.adk.agents import Agent, SequentialAgent
 from google.adk.tools import google_search
 from pydantic import BaseModel, Field
-from typing import Literal, Optional
+from typing import Literal
 
 # --------------------------------------------------------------------------
 ## 1. Pydantic Schemas (Unchanged)
