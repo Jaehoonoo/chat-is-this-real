@@ -27,7 +27,7 @@ COPY . .
 # --- Environment variables (set real values at deploy/run) ---
 ENV AGENT_NAME=extractor_agent
 ENV GOOGLE_CLOUD_PROJECT="chat-is-this-real-473415"
-ENV GOOGLE_CLOUD_LOCATION="us-central1"
+ENV GOOGLE_CLOUD_LOCATION="us-east1"
 ENV GOOGLE_GENAI_USE_VERTEXAI="False"
 
 # Cloud Run sets $PORT; ADK web defaults to 8000
