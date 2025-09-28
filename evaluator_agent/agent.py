@@ -62,7 +62,7 @@ formatting_analyst_agent = Agent(
     model="gemini-2.0-flash",
     instruction=FORMATTER_PROMPT,
     output_schema=SourceProfilerOutput,  # Enforces the final structure
-    output_key="final_profile"
+    output_key="evidence_packet"
 )
 
 # --------------------------------------------------------------------------
