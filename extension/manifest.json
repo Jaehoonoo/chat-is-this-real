@@ -9,7 +9,7 @@
 ],
   "action": {},   
   "host_permissions": [
-    "https://localhost:8000/*"
+    "https://your-backend-api.com/*"
   ],
   "background": {
     "service_worker": "background.js"
