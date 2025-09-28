@@ -41,7 +41,7 @@ def send_request():
         print(f"HTTP Error: {e.code}")
         print(f"Reason: {e.reason}")
         print("Response Body:")
-        print(e.read().decode('utf-t'))
+        print(e.read().decode('utf-8'))
     except urllib.error.URLError as e:
         print(f"URL Error: {e.reason}")
 
