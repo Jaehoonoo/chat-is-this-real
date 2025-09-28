@@ -40,4 +40,4 @@ ENV GOOGLE_GENAI_USE_VERTEXAI="False"
 EXPOSE 8000
 
 # Start the ADK server for the chosen agent
-CMD ["sh", "-c", "uvicorn your_main_file:api_app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "uvicorn master_agent.agent:api_app --host 0.0.0.0 --port ${PORT:-8000}"]
