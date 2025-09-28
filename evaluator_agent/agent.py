@@ -3,6 +3,8 @@ from google.adk.tools import google_search
 from pydantic import BaseModel, Field
 from typing import Literal
 
+from .subagents.analyst_agent.agent import fact_checker_agent
+
 # --------------------------------------------------------------------------
 ## 1. Pydantic Schemas (Unchanged)
 # --------------------------------------------------------------------------
@@ -21,9 +23,13 @@ class SourceProfilerOutput(BaseModel):
 ## 2. Two-Agent Definitions
 # --------------------------------------------------------------------------
 
+
+# MAKE SURE PARALLEL TEAM CALLS THIS AGENT NEXT AND TO FILL PROMPT WITH PROPER OUTPUT_KEY
+
+
 ### --- Agent 1: Raw Data Researcher (Uses Tools) ---
 RAW_RESEARCHER_PROMPT = """
-You are a research assistant. Your mission is to use the google_search tool to find intelligence(credibility rating and bias rating) on a given media source.
+You are a research assistant. Your mission is to use the google_search tool to find intelligence(credibility rating and bias rating) on a given media source from {fix_this}.
 
 #### Your Workflow:
 1.  **Strategize**: Extract the domain from the provided `source_url` and formulate 1-2 targeted search queries to investigate its reputation (e.g., `"domain" media bias`, `"domain" ownership`).
@@ -62,7 +68,7 @@ formatting_analyst_agent = Agent(
     model="gemini-2.0-flash",
     instruction=FORMATTER_PROMPT,
     output_schema=SourceProfilerOutput,  # Enforces the final structure
-    output_key="evidence_packet"
+    output_key="evidence_packets"
 )
 
 # --------------------------------------------------------------------------
@@ -74,6 +80,7 @@ research_workflow = SequentialAgent(
     sub_agents=[
         raw_researcher_agent,
         formatting_analyst_agent,
+        fact_checker_agent,
     ]
 )
 
