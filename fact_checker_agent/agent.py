@@ -13,9 +13,13 @@ class Claim(BaseModel):
         ...,
         description="A confidence score for the claim's validity, represented as a float between 0 and 1.",
     )
-    bias_score: float = Field(
+    bias_score: str = Field(
         ...,
-        description="A bias score for the claim's source, represented as a float between 0 and 1.",
+        description="A bias score for the claim's source, represented as a string from left, lean left, neutral, lean right, and right.",
+    )
+    justification: str = Field(
+        ...,
+        description="A detailed explanation or reasoning that supports the validity, confidence, and bias scores.",
     )
     sources: List[str] = Field(
         ...,
@@ -47,7 +51,8 @@ SYNTHESIS_AGENT_PROMPT = """
 You are a synthesis agent. Your sole task is to combine multiple pieces of evidence and the scores given by the analyst agent into a coherent final report. You must evaluate each claim and:
 
 - assign a "confidence_score" between 0 and 1, where 1 means you are absolutely certain the claim is true, and 0 means you are absolutely certain the claim is false.
-- assign a "bias_score" between 0 and 1, where 1 indicates heavily biased information, and 0 means the claim is made out of neutrality.
+- assign a "bias_score" between left, lean left, neutral, lean right, and right, where left means the claim is extremely left-leaning, and right means the claim is extremely right-leaning.
+- provide a brief "justification" (1-2 sentences) explaining your reasoning for the
 - cite sources used for your judgement from the provided list of sources. You should NOT use the original claim's sources.
 
 ## List of claims
@@ -65,7 +70,7 @@ synthesis_agent = Agent(
     model=GEMINI_MODEL,
     instruction=SYNTHESIS_AGENT_PROMPT,
     output_key="synthesis_report",
-    output_schema=ClaimsOutput,
+    output_schema=ClaimsOutput, # pass into ui
 )
 
 root_agent = SequentialAgent(
