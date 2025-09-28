@@ -9,7 +9,7 @@
 ],
   "action": {},   
   "host_permissions": [
-    "https://localhost:8000/*"
+    "http://localhost:8000/*"
   ],
   "background": {
     "service_worker": "background.js"
