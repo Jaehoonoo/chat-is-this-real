@@ -34,3 +34,5 @@ fact_checker_loop = LoopAgent(
     max_iterations=MAX_ITERATIONS,
     description="Loop that repeatedly gathers sources, evaluates them, and increases confidence until threshold is met."
 )
+
+root_agent = fact_checker_loop

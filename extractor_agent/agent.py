@@ -12,6 +12,7 @@ import re
 sys.path.append("../")
 from extractor_agent.prompt import MULTIMODAL_AGENT_PROMPT
 from extractor_agent.article_reader import article_read_tool
+from fact_checker_agent.agent import root_agent as fact_checker_agent
 
 import dotenv
 import tweepy
@@ -96,7 +97,7 @@ multimodal_reasoning_agent = Agent(
 
 root_agent = SequentialAgent(
     name="RootAgent",
-    sub_agents=[fetcher_agent, multimodal_reasoning_agent],
+    sub_agents=[fetcher_agent, multimodal_reasoning_agent, fact_checker_agent],
     # output_schema=ExtractedClaims,
 )
 

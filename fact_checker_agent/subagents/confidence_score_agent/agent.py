@@ -19,10 +19,10 @@ CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
     those sources.
 
     These are the source that we have:
-    {sources}
+    {sources_output}
 
     And this is the assessment of each source:
-    {evaluator_result}
+    {evaluator_results}
 
     Your task is to display to the user the get_evidence_score tool to display
     to the user the evidence score.
