@@ -108,11 +108,20 @@ class FactCheckerWidget {
 		status.textContent = 'Analyzing content...';
 
 		try {
-			// For now, simulate analysis
-			// TODO: Replace with real API call
-			const analysisResults = await this.simulateAnalysis();
-			this.renderResults(analysisResults);
-			status.textContent = 'Analysis complete';
+
+            const response = await chrome.runtime.sendMessage(
+                {
+                    type: 'ANALYZE_PAGE',
+                    url: window.location.href
+                }
+            );
+
+            if (response.success) {
+                this.renderResults(response.data);
+                status.textContent = 'Analysis complete';
+            }
+            else throw new Error(response.error || 'Unknown error');
+
 		} catch (error) {
 			console.error('Analysis failed:', error);
 			status.textContent = 'Analysis failed';
