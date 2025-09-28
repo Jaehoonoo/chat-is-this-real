@@ -101,8 +101,6 @@ root_agent = SequentialAgent(
     sub_agents=[
         fetcher_agent,
         multimodal_reasoning_agent,
-        retrieval_agent,
-        fact_checker_agent,
     ],
     # output_schema=ExtractedClaims,
 )

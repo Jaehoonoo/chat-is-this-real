@@ -28,14 +28,15 @@ CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
     to the user the evidence score.
 """
 
+
 def get_evidence_score(tool_context: ToolContext) -> dict:
     """
     Accepts as an argument just the tools context. Returns the evidence score.
     """
-    
+
     evidence_score = 0
     sas = []
-    
+
     # Corrected key "evaluator_results" and default value []
     source_assessments = tool_context.state.get("evaluator_results", [])
 
@@ -44,17 +45,14 @@ def get_evidence_score(tool_context: ToolContext) -> dict:
         d = sa["domain"]
         w = sa["recency_score"] * sa["credibility_score"]
         s = 1 if sa["stance"] == "supports" else -1 if sa["stance"] == "opposes" else 0
-        sas.append(
-            {
-                "domain": d,
-                "weight": w,
-                "stance": s
-            }
-        )
+        sas.append({"domain": d, "weight": w, "stance": s})
         evidence_score += s * w
-        
+
     tool_context.state["source_weights"] = sas
-    return {"evidence_score": evidence_score} # It's good practice for tools to return a dictionary
+    return {
+        "evidence_score": evidence_score
+    }  # It's good practice for tools to return a dictionary
+
 
 confidence_score_agent = Agent(
     model="gemini-2.0-flash-001",
@@ -63,94 +61,7 @@ confidence_score_agent = Agent(
     fact-checking system to combat misinformation.""",
     instruction=CONFIDENCE_SCORE_AGENT_INSTRUCTION,
     output_key="confidence_score",
-    tools=[get_evidence_score]
+    tools=[get_evidence_score],
 )
 
 root_agent = confidence_score_agent
-
-# # Executes required runner logic for unit test of conf score agnt.
-# async def main():
-#     session_service_stateful = InMemorySessionService()
-
-#     initial_state = {
-#         "sources": [
-#             {
-#                 "domain": "nytimes.com",
-#                 "article_text": "A recent report from the New York Times confirms that climate change is accelerating, citing new NASA data.",
-#                 "published_date": "2025-09-20",
-#                 "original_claim": "Climate change is accelerating due to human activity."
-#             },
-#             {
-#                 "domain": "foxnews.com",
-#                 "article_text": "Fox News ran a segment suggesting that the link between climate change and human activity is exaggerated.",
-#                 "published_date": "2025-09-15",
-#                 "original_claim": "Climate change is accelerating due to human activity."
-#             },
-#             {
-#                 "domain": "bbc.com",
-#                 "article_text": "BBC published an article explaining the latest UN report on the rapid increase of global warming, largely attributed to fossil fuels.",
-#                 "published_date": "2025-09-10",
-#                 "original_claim": "Climate change is accelerating due to human activity."
-#             }
-#         ],
-#         "evaluator_result": [
-#             {
-#                 "domain": "nytimes.com",
-#                 "credibility_score": 0.9,
-#                 "bias_label": "center",
-#                 "recency_score": 1.0,
-#                 "stance": "supports",
-#                 "reasoning": "The New York Times is a highly credible source, and the article explicitly confirms the claim using NASA data. The article was also published very recently."
-#             },
-#             {
-#                 "domain": "foxnews.com",
-#                 "credibility_score": 0.6,
-#                 "bias_label": "right",
-#                 "recency_score": 1.0,
-#                 "stance": "opposes",
-#                 "reasoning": "Fox News has a right-leaning bias, and the article suggests that the link between climate change and human activity is exaggerated, thus opposing the claim. The article was published very recently."
-#             },
-#             {
-#                 "domain": "bbc.com",
-#                 "credibility_score": 0.9,
-#                 "bias_label": "center",
-#                 "recency_score": 0.5,
-#                 "stance": "supports",
-#                 "reasoning": "The BBC is a highly credible source, and the article explains the UN report attributing global warming to fossil fuels, thus supporting the claim. The article was published very recently."
-#             }
-#         ]
-#     }
-
-#     APP_NAME = "Conf Score Agnt"
-#     USER_ID = "kalyanolivera"
-#     SESSION_ID = str(uuid.uuid4())
-#     stateful_session = await session_service_stateful.create_session(
-#         app_name=APP_NAME,
-#         user_id=USER_ID,
-#         session_id=SESSION_ID,
-#         state=initial_state
-#     )
-
-#     runner = Runner(
-#         agent=confidence_score_agent,
-#         app_name=APP_NAME,
-#         session_service=session_service_stateful
-#     )
-
-#     nm = types.Content(
-#         role="user", parts = [types.Part(text="do the tasks that you are made to do")]
-#     )
-
-#     # Where `e` stands for "event."
-#     for e in runner.run(
-#         user_id=USER_ID,
-#         session_id=SESSION_ID,
-#         new_message=nm
-#     ):
-#             if e.is_final_response() and e.content and e.content.parts:
-#                 print(
-#                     f"Final response: {e.content.parts[0].text}"
-#                 )
-
-# if __name__ == "__main__":
-#     asyncio.run(main())
