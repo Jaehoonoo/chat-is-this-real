@@ -7,6 +7,7 @@ from .data import SOURCE_ANALYTICS_DB
 ## 1. Tools
 # --------------------------------------------------------------------------
 
+
 # --- MODIFIED ---
 # This function now queries the real SOURCE_ANALYTICS_DB.
 def get_source_analytics(domain: str) -> Dict:
@@ -23,10 +24,12 @@ def get_source_analytics(domain: str) -> Dict:
     print(f"TOOL CALLED: get_source_analytics('{domain}') -> {analytics}")
     return analytics
 
+
 def recency_score(published_date: str) -> float:
     """Returns a dummy recency score for a given date."""
     print(f"TOOL CALLED: recency_score(published_date='{published_date}')")
     return 1.0
+
 
 # --------------------------------------------------------------------------
 ## 2. Pydantic Schemas for Output Validation
@@ -34,17 +37,32 @@ def recency_score(published_date: str) -> float:
 
 Stance = Literal["supports", "opposes", "neutral"]
 
+
 class SourceEvaluation(BaseModel):
     """A Pydantic model for a single evaluated source."""
-    domain: str = Field(..., description="The domain of the source, e.g., 'example.com'.")
-    credibility_score: float = Field(..., description="Credibility score from the get_source_analytics tool.")
-    bias_label: float = Field(..., description="Bias score from the get_source_analytics tool.")
-    recency_score: float = Field(..., description="Recency score from the recency_score tool.")
-    stance: Stance = Field(..., description="The stance of the article towards the original claim.")
+
+    domain: str = Field(
+        ..., description="The domain of the source, e.g., 'example.com'."
+    )
+    credibility_score: float = Field(
+        ..., description="Credibility score from the get_source_analytics tool."
+    )
+    bias_label: float = Field(
+        ..., description="Bias score from the get_source_analytics tool."
+    )
+    recency_score: float = Field(
+        ..., description="Recency score from the recency_score tool."
+    )
+    stance: Stance = Field(
+        ..., description="The stance of the article towards the original claim."
+    )
+
 
 class EvaluatorOutput(RootModel):
     """A Pydantic RootModel representing a list of evaluations."""
+
     root: List[SourceEvaluation]
+
 
 # --------------------------------------------------------------------------
 ## 3. Agent Definitions
@@ -52,29 +70,32 @@ class EvaluatorOutput(RootModel):
 
 # Agent A: Gathers raw data using tools
 RAW_OUTPUT_PROMPT = """
-You are a fact-checking assistant. Your task is to process a list of sources.
+You are an expert fact-checker and source analyst. Your task is to evaluate a given list of sources and their associated claims based on several key metrics.
 
-# Your Strict Workflow
-1. For each source, you MUST call the `get_source_analytics` and `recency_score` tools.
-2. After calling all tools, analyze the stance for each source.
-3. Finally, compile all the collected information (domain, credibility_score, bias_label, recency_score, stance) into a single, valid JSON array string. This is your only output. Do not add any other text.
-4. (optional) if you cannot determine the collected information from data do your best to make an educated guess.
+#### Your Workflow and Directives
+
+1.  **Input Analysis**: You will be provided with a JSON array, where each object contains a `domain` and an `original_claim` to be evaluated.
+2.  **Tool Execution**: For each entry in the input array, you **must** perform two actions:
+    * Call the `get_source_analytics` tool with the `domain` to retrieve its `credibility_score` and `bias_label`.
+    * Call the `recency_score` tool with the `original_claim` to determine how recent the information is.
+3.  **Stance and Synthesis**: Based on the `original_claim` and the article content, analyze and determine the `stance` of the source ("supports", "opposes", "neutral").
+4.  **Educated Guessing**: If any of the required data points (`credibility_score`, `bias_label`, `recency_score`, or `stance`) cannot be determined from the tool outputs or the article content, you **MUST** make an educated guess based on your extensive knowledge of journalism and media.
+5.  **Final Output**: Compile all the collected and synthesized information for each source into a **single, valid JSON array string**. Each object in the array **must** contain the following keys: `domain`, `credibility_score`, `bias_label`, `recency_score`, and `stance`. Do not include any other text, explanation, or conversational filler in your final output. Your output must be a parsable JSON string and nothing else.
 """
 
 raw_output_agent = Agent(
     name="raw_output_agent",
     model="gemini-2.0-flash",
-    instruction=RAW_OUTPUT_PROMPT,
+    instruction=RAW_OUTPUT_PROMPT + "Your input source list is: {sources_output}",
     tools=[get_source_analytics, recency_score],
-    output_key="raw_json_input"
+    output_key="raw_json_input",
 )
 
 # Agent B: Formats the raw data into the Pydantic schema
 FORMATTER_PROMPT = """
 You are a data formatting expert. Your ONLY job is to take the raw JSON string below and reformat it to perfectly match the required schema. Do not change any of the data's values.
 
-Raw JSON Input:
-{{ raw_json_input }}
+Raw JSON Input: {raw_json_input}
 """
 
 formatting_agent = Agent(
@@ -82,7 +103,7 @@ formatting_agent = Agent(
     model="gemini-2.0-flash",
     instruction=FORMATTER_PROMPT,
     output_schema=EvaluatorOutput,
-    output_key="evaluator_results"
+    output_key="evaluator_results",
 )
 
 # --------------------------------------------------------------------------
