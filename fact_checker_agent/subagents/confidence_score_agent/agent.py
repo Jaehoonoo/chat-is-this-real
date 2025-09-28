@@ -24,8 +24,17 @@ CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
     And this is the assessment of each source:
     {evaluator_result}
 
-    Your task is to display to the user the get_evidence_score tool to display
-    to the user the evidence score.
+    Your task is to use the get_evidence_score tool to display to the user the
+    evidence score. If the value is higher than 0.25, then you must tell the
+    user that the original claims are supported by the sources/evidence found.
+    If evidence score is less than -0.25, then you must tell the user that the
+    original claims are not supported by the sources/evidence found.
+
+    You must also display the result of the get_confidence_score to the user.
+    Make sure you call the get_confidence_score after the get_evidence_score.
+
+    Include in your final response both the result of the get_confidence_score
+    tool and the get_evidence_score tool. You must include both results.
 """
 
 def get_evidence_score(tool_context: ToolContext) -> dict:
