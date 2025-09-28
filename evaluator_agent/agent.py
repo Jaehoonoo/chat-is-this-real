@@ -3,7 +3,7 @@ from google.adk.tools import google_search
 from pydantic import BaseModel, Field
 from typing import Literal
 
-from .subagents.analyst_agent.agent import fact_checker_agent
+from fact_checker_agent.agent import root_agent as fact_checker_agent
 
 # --------------------------------------------------------------------------
 ## 1. Pydantic Schemas (Unchanged)

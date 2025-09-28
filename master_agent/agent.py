@@ -20,6 +20,6 @@ root_agent = SequentialAgent(
     sub_agents=[
         fetcher_agent,
         retrieval_agent,
-        fact_checker_agent,
+        fact_checker_agent, # i think delete this
     ],
 )
