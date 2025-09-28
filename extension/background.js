@@ -88,7 +88,7 @@ async function analyzePage(url) {
         {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'ContentType': 'applications/json',
             },
             body: JSON.stringify(
                 {
