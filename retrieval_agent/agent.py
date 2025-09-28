@@ -106,7 +106,13 @@ Your final output must be a single JSON object that strictly adheres to the foll
 ```json
 {
   "sources": [
-    {"domain": "..", "published_date": "...", "original_claim": [...]}
+    {
+      "source": "The full URL as provided by the previous agent. **DO NOT** modify this URL in any way.",
+      "domain": "The name of the source (New York Times, NPR, Nature.com, CDC.gov, etc.).",
+      "article_text": "The one-to-two-sentence summary from the source indicating whether it supports or refutes the claim.",
+      "why_reliable": "A short, concise rationale for the source's reliability (e.g., Official government data, Peer-reviewed journal).",
+      "original_claim": "The original claim that was evaluated by this source."
+    }
   ]
 }
 ```
