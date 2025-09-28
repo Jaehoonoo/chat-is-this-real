@@ -19,8 +19,9 @@ from retrieval_agent.prompt import FORMATTER_PROMPT, QUERY_AGENT_PROMPT
 
 class SourceItem(BaseModel):
     domain: str
-    article_text: str
+    retrieved_quote: str
     published_date: str
+    retrieving_agent: str
 
 
 class SourcesOutput(BaseModel):
@@ -37,15 +38,23 @@ class SourcesOutput(BaseModel):
 positive_query_agent = Agent(
     name="positive_query_agent",
     model="gemini-2.0-flash",
-    instruction="You are an expert at generating **positive** search queries to find reputable sources that support a given claim. Create 5 CONCISE search queries that yield high-quality sources that **CORROBORATE** claims.",
+    instruction="You are an expert at generating **positive** search queries to find reputable sources that support the given viewpoint. Create 5 DISTINCT search queries that yield high-quality sources that **CORROBORATE** the viewpoint.",
     output_key="pos_q",
 )
 
 negative_query_agent = Agent(
     name="negative_query_agent",
     model="gemini-2.0-flash",
-    instruction="You are an expert at generating **negative** search queries to find reputable sources that refute a given claim. Create 5 CONCISE search queries that yield high-quality sources that **DISPROVE** claims.",
+    instruction="You are an expert at generating **negative** search queries to find reputable sources that refute a viewpoint. Create 5 DISTINCT search queries that yield high-quality sources that **DISPROVE** the viewpoint.",
     output_key="neg_q",
+)
+
+information_query_agent = Agent(
+    name="information_query_agent",
+    model="gemini-2.0-flash",
+    instruction="""You are an expert at generating **informational** search queries to gather resources that provide context or background information on a given claim. Deeply examine the **nature** what the claim is, and create 5 search queries that would help others be **INFORMED**.
+    """,
+    output_key="info_q",
 )
 
 positive_search_agent = Agent(
@@ -64,6 +73,14 @@ negative_search_agent = Agent(
     output_key="negative_search_results",
 )
 
+neutral_search_agent = Agent(
+    name="search_agent",
+    model="gemini-2.0-flash",
+    instruction=QUERY_AGENT_PROMPT + "{info_q}",
+    tools=[google_search],
+    output_key="neutral_search_results",
+)
+
 pos_agent = SequentialAgent(
     name="positive_search_agent",
     sub_agents=[positive_query_agent, positive_search_agent],
@@ -74,12 +91,18 @@ neg_agent = SequentialAgent(
     sub_agents=[negative_query_agent, negative_search_agent],
 )
 
+neutral_agent = SequentialAgent(
+    name="neutral_search_agent",
+    sub_agents=[information_query_agent, neutral_search_agent],
+)
+
 formatter_agent = Agent(
     name="formatter_agent",
     model="gemini-2.0-flash",
     instruction=FORMATTER_PROMPT
     + " ### Positive Query Results\n {positive_search_results}  \n"
-    + "### Negative Query Results\n{negative_search_results}",
+    + "### Negative Query Results\n{negative_search_results} \n"
+    + "### Informational Query Results\n{neutral_search_results} \n",
     output_schema=SourcesOutput,
     output_key="sources_output",
 )
@@ -88,7 +111,7 @@ formatter_agent = Agent(
 parallel_search_agent = ParallelAgent(
     name="query_generator_agent",
     description="Generates both positive and negative search queries in parallel.",
-    sub_agents=[pos_agent, neg_agent],
+    sub_agents=[pos_agent, neg_agent, neutral_agent],
 )
 
 # Step 2: Combine all agents into a single SequentialAgent
