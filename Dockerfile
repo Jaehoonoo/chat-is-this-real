@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
-FROM python:3.13-slim
+FROM python:3.11-slim
 
-RUN python3.13 -m venv .venv 
+RUN python3.11 -m venv .venv 
 #RUN source .venv/bin/activate
 RUN python -m pip install --upgrade pip
 
@@ -20,12 +20,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # --- Install Python deps ---
 # 1) Upgrade pip & install google-adk globally inside the image
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
-    && pip install --no-cache-dir google-adk
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel 
+   #\
+   # && pip install --no-cache-dir google-adk
 
 # 2) Copy your own requirements (if any) and install
 COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt || true
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # --- Copy project code ---
 COPY . .
@@ -40,4 +41,4 @@ ENV GOOGLE_GENAI_USE_VERTEXAI="False"
 EXPOSE 8000
 
 # Start the ADK server for the chosen agent
-CMD ["sh", "-c", "uvicorn master_agent.agent:api_app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "uvicorn server:api --host 0.0.0.0 --port ${PORT:-8000}"]

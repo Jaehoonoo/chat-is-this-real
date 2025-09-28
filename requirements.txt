@@ -9,3 +9,7 @@ newspaper3k
 lxml[html_clean]
 tweepy
 requests
+google-adk>=0.1.0
+google-genai>=0.6.0
+fastapi
+uvicorn
