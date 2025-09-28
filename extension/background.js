@@ -92,7 +92,7 @@ async function analyzePage(url) {
             },
             body: JSON.stringify(
                 {
-                    "input": { "url": url }
+                    "input": { "parts": [ { "text": `Analyze the content at this URL: ${url}` } ] }
                 }
             )
         }
