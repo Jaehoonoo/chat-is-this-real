@@ -93,7 +93,7 @@ Your task:
 
 {
   "sources": [
-    {"domain": "..", "article_text": "...", "published_date": "...", "original_claim": [...]}
+    {"domain": "..", "published_date": "...", "original_claim": [...]}
   ]
 }
 
