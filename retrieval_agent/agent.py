@@ -96,6 +96,13 @@ neutral_agent = SequentialAgent(
     sub_agents=[information_query_agent, neutral_search_agent],
 )
 
+# Step 1: Create a ParallelAgent to generate both sets of queries at once.
+parallel_search_agent = ParallelAgent(
+    name="query_generator_agent",
+    description="Generates both positive and negative search queries in parallel.",
+    sub_agents=[pos_agent, neg_agent, neutral_agent],
+)
+
 formatter_agent = Agent(
     name="formatter_agent",
     model="gemini-2.0-flash",
@@ -105,13 +112,6 @@ formatter_agent = Agent(
     + "### Informational Query Results\n{neutral_search_results} \n",
     output_schema=SourcesOutput,
     output_key="sources_output",
-)
-
-# Step 1: Create a ParallelAgent to generate both sets of queries at once.
-parallel_search_agent = ParallelAgent(
-    name="query_generator_agent",
-    description="Generates both positive and negative search queries in parallel.",
-    sub_agents=[pos_agent, neg_agent, neutral_agent],
 )
 
 # Step 2: Combine all agents into a single SequentialAgent
