@@ -8,3 +8,4 @@ deprecated==1.2.18
 newspaper3k
 lxml[html_clean]
 tweepy
+requests
