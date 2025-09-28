@@ -79,3 +79,29 @@ async function simulateAnalysis() {
 		],
 	};
 }
+
+async function analyzePage(url) {
+    const apiEndpoint = "http://localhost:8000/run";
+
+    const response = await fetch(
+        apiEndpoint,
+        {
+            method: POST,
+            headers: {
+                'ContentType': 'applications/json',
+            },
+            body: JSON.stringify(
+                {
+                    "input": { "url": url }
+                }
+            )
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+    }
+
+    const results = await response.json();
+    return results;
+}
