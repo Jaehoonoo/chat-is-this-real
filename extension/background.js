@@ -86,7 +86,7 @@ async function analyzePage(url) {
     const response = await fetch(
         apiEndpoint,
         {
-            method: POST,
+            method: 'POST',
             headers: {
                 'ContentType': 'applications/json',
             },
