@@ -97,7 +97,7 @@ multimodal_reasoning_agent = Agent(
 
 root_agent = SequentialAgent(
     name="RootAgent",
-    sub_agents=[fetcher_agent, multimodal_reasoning_agent, fact_checker_agent],
+    sub_agents=[fetcher_agent, multimodal_reasoning_agent, retrieval_agent],
     # output_schema=ExtractedClaims,
 )
 
