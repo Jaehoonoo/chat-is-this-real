@@ -24,40 +24,42 @@ CONFIDENCE_SCORE_AGENT_INSTRUCTION = """
     And this is the assessment of each source:
     {evaluator_result}
 
-    Your task is to calculate the source weight for each source. You have
-    access to a tool called `get_source_weight` which you can use to accomplish
-    your task.
-
-    Just output what the get_source_weight tool gives you.
+    Your task is to display to the user the get_evidence_score tool to display
+    to the user the evidence score.
 """
 
-def get_source_weights(tool_context: ToolContext) -> dict:
+def get_evidence_score(tool_context: ToolContext) -> dict:
     """
-    Accepts as an argument just the tools context. Returns a list of dicts
-    relating sources and their associated weights.
+    Accepts as an argument just the tools context. Returns the evidence score.
     """
-    a = []
-    for i in tool_context.state.get("evaluator_result", "fib"):
-        a.append(
+    
+    evidence_score = 0
+
+    sas = []
+    # Where `sa` stands for "source assessment."
+    for sa in tool_context.state.get("evaluator_result", "fib"):
+        d = sa["domain"]
+        w = sa["recency_score"] * sa["credibility_score"]
+        s = 1 if sa["stance"] == "supports" else -1 if sa["stance"] == "opposes" else 0
+        sas.append(
             {
-                "domain": i["domain"],
-                "weights": i["recency_score"] * i["credibility_score"]
+                "domain": d,
+                "weight": w,
+                "stance": s
             }
         )
-    tool_context.state["source_weights"] = a
-    return a
-
-def get_evidence_score(tool_context: ToolContext) -> dict:
-    pass
+        evidence_score += s*w
+    tool_context.state["source_weights"] = sas
+    return evidence_score
 
 confidence_score_agent = Agent(
     model="gemini-2.0-flash-001",
     name="confidence_score_agent",
-    description="""You are an agent responsible for giving a confidence score
-    with regards to how confident you are.""",
+    description="""A professional agent whose job is to be the judge in a
+    fact-checking system to combat misinformation.""",
     instruction=CONFIDENCE_SCORE_AGENT_INSTRUCTION,
     output_key="confidence_score",
-    tools=[get_source_weights]
+    tools=[get_evidence_score]
 )
 
 # Executes required runner logic for unit test of conf score agnt.
