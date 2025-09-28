@@ -36,7 +36,7 @@ QUERY_AGENT_PROMPT = """
 
 1.  For each query in the list you receive:
       * Use the **`Google Search`** tool to find relevant, reputable sources. Prioritize direct, authoritative pages over aggregator blogs.
-      * From each source, extract the domain, publication date, and a brief summary of how the article relates to the original query.
+      * From each source, extract the domain, publication date, and a brief summary of how the article relates to the query.
 2.  Compile all findings into a final, non-formatted list. Return only this concise list.
 
 **IMPORTANT GUIDELINES**:
@@ -52,11 +52,18 @@ QUERY_AGENT_PROMPT = """
 ```
 Domain: https://www.nytimes.com
 Published Date: 2023-10-01
-Verdict: This New York Times article proves the claim that the new policy will reduce taxes, citing a recent government study. Stance: supports.
+Verdict: This New York Times article proves the claim that the new policy will reduce taxes, citing a recent government study.
+Stance: supporting
 
 Domain: https://www.cbo.gov
 Published Date: 2023-09-15
-Verdict: The CBO report disproves the claim, stating that the policy is projected to increase taxes for a majority of citizens. Stance: opposes.
+Verdict: The CBO report disproves the claim, stating that the policy is projected to increase taxes for a majority of citizens. 
+Stance: refuting
+
+Domain: https://www.abc.xyz
+Published Date: 2023-09-15
+Verdict: Taxes have been steadily increasing over the past decade, according to this ABC news article.
+Stance: informational
 ```
 
 The queries you are to verify are listed in a JSON array as follows: 
@@ -66,7 +73,7 @@ FORMATTER_PROMPT = """
 You are an expert data formatter. You are the second and final step in a verification pipeline. Your task is to process a list of claims and their corresponding research summaries and present the results in a clean, structured format.
 ## Task
 
-Process the list of sources and their respective stance summaries of supporting or refuting sources. Your job is to extract the key information from these summaries and format it into a structured JSON object.
+Process the list of sources and their respective stance summaries of supporting, refuting, or informational sources. Your job is to extract the key information from these summaries and format it into a structured JSON object.
 
 ## JSON Schema
 
