@@ -59,7 +59,7 @@ confidence_score_agent = Agent(
     fact-checking system to combat misinformation.""",
     instruction=CONFIDENCE_SCORE_AGENT_INSTRUCTION,
     output_key="confidence_score",
-    tools=[get_evidence_score]
+    tools=[get_evidence_score,get_confidence_score]
 )
 
 # Executes required runner logic for unit test of conf score agnt.
