@@ -3,36 +3,38 @@ from google.adk.tools.tool_context import ToolContext
 
 # --- Import Sub-Agents ---
 # Make sure these imports point to your actual project structure
-from .subagents.retrieval_agent.agent import retrieval_agent
 from .subagents.evaluator_agent.agent import evaluator_agent
 from .subagents.confidence_score_agent.agent import confidence_score_agent
 
 # --- Constants ---
 GEMINI_MODEL = "gemini-2.0-flash"
-MAX_ITERATIONS = 5
+MAX_ITERATIONS = 2
 
 # --- State Keys ---
 STATE_ORIGINAL_CLAIM = "original_claim"
 STATE_EVALUATED_SOURCES = "evaluated_sources"
 STATE_CONFIDENCE_SCORE = "confidence_score"
 
+
 # --- Exit Tool ---
 def exit_loop(tool_context: ToolContext):
     """Stop the loop when confidence score >= 90."""
-    print(f"✅ exit_loop triggered by {tool_context.agent_name}. Confidence threshold reached.")
+    print(
+        f"✅ exit_loop triggered by {tool_context.agent_name}. Confidence threshold reached."
+    )
     tool_context.actions.escalate = True
     return {}
+
 
 # --- Fact Checking Loop ---
 fact_checker_loop = LoopAgent(
     name="FactCheckingLoop",
     sub_agents=[
-        retrieval_agent,        # Finds supporting/opposing sources
-        evaluator_agent,        # Evaluates sources and updates STATE_EVALUATED_SOURCES
-        confidence_score_agent  # Updates confidence and triggers exit when >= 90
+        evaluator_agent,  # Evaluates sources and updates STATE_EVALUATED_SOURCES
+        confidence_score_agent,  # Updates confidence and triggers exit when >= 90
     ],
     max_iterations=MAX_ITERATIONS,
-    description="Loop that repeatedly gathers sources, evaluates them, and increases confidence until threshold is met."
+    description="Loop that repeatedly gathers sources, evaluates them, and increases confidence until threshold is met.",
 )
 
 root_agent = fact_checker_loop

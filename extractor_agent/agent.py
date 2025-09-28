@@ -13,6 +13,7 @@ sys.path.append("../")
 from extractor_agent.prompt import MULTIMODAL_AGENT_PROMPT
 from extractor_agent.article_reader import article_read_tool
 from fact_checker_agent.agent import root_agent as fact_checker_agent
+from retrieval_agent.agent import root_agent as retrieval_agent
 
 import dotenv
 import tweepy
@@ -81,7 +82,7 @@ fetcher_agent = Agent(
     model="gemini-2.0-flash",
     name="FetcherAgent",
     description="An agent that fetches content from a URL, using the appropriate tool for a news article or social media post.",
-    instruction="If the URL is from a news site, use the `article_reader` tool. If the URL is from X (formerly Twitter), use the `x_post_fetcher` tool. Do not make any assumptions about the content of the URL; always use the tools provided.\n\nOutput only the fetched content verbatim, without any additional commentary or explanation.",
+    instruction=" If the URL is from X (formerly Twitter), use the `x_post_fetcher` tool. If the URL is from an authoritative source (news agent, governmental agencies), use the `article_reader` tool. Do not make any assumptions about the content of the URL; always use the tools provided.\n\nOutput only the fetched content verbatim, without any additional commentary or explanation.",
     tools=[article_read_tool, x_post_fetcher_tool],
     output_key="fetched_content",  # Saves the raw text here
 )
@@ -97,7 +98,12 @@ multimodal_reasoning_agent = Agent(
 
 root_agent = SequentialAgent(
     name="RootAgent",
-    sub_agents=[fetcher_agent, multimodal_reasoning_agent, retrieval_agent],
+    sub_agents=[
+        fetcher_agent,
+        multimodal_reasoning_agent,
+        retrieval_agent,
+        fact_checker_agent,
+    ],
     # output_schema=ExtractedClaims,
 )
 

@@ -16,8 +16,5 @@ def article_read_tool(url: str):
     article = Article(url, config=config)
     article.download()
     article.parse()
-    # write to a temporary file
-    # with open("temp/file.txt", "w", encoding="utf-8") as f:
-    # f.write(article.text)
 
     return {"article_summary": article.summary, "article_full_text": article.text}
