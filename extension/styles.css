@@ -1,0 +1,308 @@
+/* styles.css - Expandable Widget Styles */
+
+/* Widget Base Styles */
+#fact-checker-widget {
+    position: fixed;
+    top: 8px;
+    right: 8px;
+    z-index: 10000;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Minimized State */
+.fact-checker-minimized {
+    width: auto;
+    height: auto;
+}
+
+.widget-minimized {
+    background: linear-gradient(135deg, #007cba 0%, #005a87 100%);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 16px rgba(0, 124, 186, 0.3);
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.widget-minimized:hover {
+    background: linear-gradient(135deg, #005a87 0%, #004666 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 124, 186, 0.4);
+}
+
+.widget-icon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.widget-label {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Expanded State */
+.fact-checker-expanded {
+    width: 400px;
+    max-height: 80vh;
+}
+
+.widget-expanded {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 124, 186, 0.1);
+    animation: expandWidget 0.3s ease-out;
+}
+
+@keyframes expandWidget {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Widget Header */
+.widget-header {
+    background: linear-gradient(135deg, #007cba 0%, #005a87 100%);
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.widget-title {
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.widget-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.widget-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Widget Content */
+.widget-content {
+    padding: 20px;
+}
+
+.widget-status {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 12px;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    color: #495057;
+    font-size: 14px;
+    border: 1px solid #e9ecef;
+}
+
+.widget-analyze-btn {
+    width: 100%;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #007cba 0%, #005a87 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 124, 186, 0.2);
+}
+
+.widget-analyze-btn:hover {
+    background: linear-gradient(135deg, #005a87 0%, #004666 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 124, 186, 0.3);
+}
+
+.widget-analyze-btn:disabled {
+    background: #e9ecef;
+    color: #adb5bd;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Loading State */
+.widget-loading {
+    text-align: center;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #e9ecef;
+    border-top: 3px solid #007cba;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 12px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Results Area */
+.widget-results {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.widget-results::-webkit-scrollbar {
+    width: 6px;
+}
+
+.widget-results::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.widget-results::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.widget-results::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Claim Cards */
+.claim-card {
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.claim-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.claim-card.success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-color: #b8dacd;
+    color: #155724;
+}
+
+.claim-title {
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #212529;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.claim-description {
+    color: #6c757d;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.claim-score {
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    display: inline-block;
+    font-weight: 500;
+}
+
+.claim-score.high-confidence {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.claim-score.low-confidence {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.claim-sources {
+    margin-top: 12px;
+}
+
+.sources-label {
+    font-size: 12px;
+    color: #6c757d;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.chip-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.chip {
+    background: linear-gradient(135deg, #e7f3ff 0%, #cce7ff 100%);
+    color: #0066cc;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 11px;
+    cursor: pointer;
+    border: 1px solid #b3d9ff;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.chip:hover {
+    background: linear-gradient(135deg, #cce7ff 0%, #99d6ff 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 102, 204, 0.2);
+}
+
+.error-message {
+    color: #dc3545;
+    text-align: center;
+    padding: 16px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+}
