@@ -11,7 +11,7 @@ class Claim(BaseModel):
     claim_text: str = Field(..., description="The detected claim text.")
     confidence: float = Field(
         ...,
-        description="A confidence score for the claim's validity, represented as a float between 0 and 1.",
+        description="A confidence score for the claim's validity, represented as a float between 0 and 1 to 2 decimal places.",
     )
     bias_score: str = Field(
         ...,
@@ -70,7 +70,7 @@ synthesis_agent = Agent(
     model=GEMINI_MODEL,
     instruction=SYNTHESIS_AGENT_PROMPT,
     output_key="synthesis_report",
-    output_schema=ClaimsOutput, # pass into ui
+    output_schema=ClaimsOutput,  # pass into ui
 )
 
 root_agent = SequentialAgent(
